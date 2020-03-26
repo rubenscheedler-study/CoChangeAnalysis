@@ -1,9 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-def time_between_commits(repo):
+def time_between_commits(repo, branch):
     # Get all commits for this repo on the master branch.
-    commits = list(repo.iter_commits('master'))
+    commits = list(repo.iter_commits(branch))
     # Calculate the time between commits in minutes
     commitDifs = [round((commits[i].committed_datetime.timestamp() - commits[i+1].committed_datetime.timestamp())/60) for i in range(len(commits)-1)]
     plt.hist(commitDifs, bins='auto')
