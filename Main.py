@@ -1,7 +1,10 @@
 from git import Repo
-from FilesPerCommit import files_per_commit_information
 
 # Constants
+from Commits_over_lifetime import commits_over_lifetime
+from FilesPerCommit import files_per_commit_information
+from TimeBetweenCommits import time_between_commits
+
 git_url = "https://github.com/swagger-api/swagger-core.git";
 clone_directory = "projects/swagger-core/"
 
@@ -12,4 +15,8 @@ repo = Repo(clone_directory)
 # Analyse the amount of files per commit for this repo.
 files_per_commit_information(repo)
 
+# Analyse the time between commits for this repo.
+time_between_commits(repo)
 
+# Get the number of commits per day the repo exists
+commits_over_lifetime(repo)
