@@ -5,7 +5,7 @@ from CommitsPerCommitDay import commits_per_commitday
 from Commits_over_lifetime import commits_over_lifetime
 from FilesPerCommit import files_per_commit_information
 from TimeBetweenCommits import time_between_commits
-from projects.ThresholdAnalysis import threshold_distribution
+from ThresholdAnalysis import threshold_distribution
 
 git_url = "https://github.com/apache/xerces2-j.git"
 clone_directory = "projects/xerces2-j/"
