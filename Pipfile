@@ -8,6 +8,8 @@ verify_ssl = true
 [packages]
 gitpython = "*"
 matplotlib = "*"
+pandas = "*"
+scipy = "*"
 
 [requires]
 python_version = "3.8"
