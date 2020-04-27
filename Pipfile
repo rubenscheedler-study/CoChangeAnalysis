@@ -10,6 +10,9 @@ gitpython = "*"
 matplotlib = "*"
 pandas = "*"
 scipy = "*"
+mlxtend = "*"
+dtw-python = "*"
+PyGithub = "*"
 
 [requires]
 python_version = "3.8"
