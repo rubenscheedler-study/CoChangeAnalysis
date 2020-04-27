@@ -1,5 +1,7 @@
 import datetime
 
-analysis_end_date = datetime.datetime(2006, 2, 28)
-analysis_start_date = datetime.datetime(2005, 2, 18)
+analysis_start_date = datetime.datetime(2013, 10, 29)
+analysis_end_date = datetime.datetime(2020, 4, 28)
+project_name = "sonarlint-intellij"
+input_directory = "input/" + project_name
 

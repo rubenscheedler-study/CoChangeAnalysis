@@ -8,7 +8,7 @@ from itertools import combinations, chain
 from scipy import stats
 from scipy.stats import chi2
 
-from config import analysis_start_date, analysis_end_date
+from config import analysis_start_date, analysis_end_date, input_directory
 
 
 def analyze_results():
@@ -105,17 +105,17 @@ def odds_ratio(non_smelling_non_co_changing_pairs, non_smelling_co_changing_pair
 
 
 def find_co_changed_pairs_with_date_range():
-    return pd.read_csv("input/cochanges.csv")
+    return pd.read_csv(input_directory + "/cochanges.csv")
 
 
 def find_all_pairs():
-    all_pairs = pd.read_csv("input/file_pairs.csv")
+    all_pairs = pd.read_csv(input_directory + "/file_pairs.csv")
     full_path_pairs = list(zip(all_pairs.file1, all_pairs.file2))
     return list(map(lambda pair: (map_path_to_filename(pair[0]), map_path_to_filename(pair[1])), full_path_pairs))
 
 
 def find_smelly_pairs_with_date(analysis_start_date, analysis_end_date):
-    smells = pd.read_csv("input/smell-characteristics-consecOnly.csv")
+    smells = pd.read_csv(input_directory + "/smell-characteristics-consecOnly.csv")
     smells = smells[smells.affectedComponentType == "class"]
     # Add a column for the parsed version date.
     smells['parsedVersionDate'] = smells['versionDate'].map(lambda x: datetime.datetime.strptime(x, '%d-%m-%Y'))
