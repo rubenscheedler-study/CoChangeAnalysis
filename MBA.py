@@ -1,22 +1,28 @@
 from mlxtend.frequent_patterns import apriori
 from mlxtend.frequent_patterns import association_rules
-import numpy as np
 import pandas as pd
 from mlxtend.preprocessing import TransactionEncoder
 
+
 def perform_mba():
     components = pd.read_csv("input/component-characteristics-consecOnly.csv")
-    components = components[components['type'] == 'class']
-    components = components[components.apply(lambda row: row['changeHasOccurredMetric'] == '0' or row['changeHasOccurredMetric'] == 'True', axis=1)]
+    # only consider classes, not packages
+    orgcomponents = components[components['type'] == 'class']
+    # filter on added or changed
+    componentsZero = orgcomponents[orgcomponents['changeHasOccurredMetric'] == '0']
+    componentsTrue = orgcomponents[orgcomponents['changeHasOccurredMetric'] == True]
+    components = componentsZero.append(componentsTrue, ignore_index=True)
+    length = len(components.index)
     components = components[['version', 'name']]
+    # group names by version
     grouped_comp = components.groupby('version')['name'].apply(list).reset_index(name='shoppingList')
     components_list = grouped_comp['shoppingList']
+    # encode list of transactions to a dataframe
     te = TransactionEncoder()
     te_ary = te.fit(components_list).transform(components_list)
     df = pd.DataFrame(te_ary, columns=te.columns_)
-    x = generate_basket_rules(df)
-    y= 5
-
+    # perform mba
+    return generate_basket_rules(df)
 
 
 def generate_basket_rules(df):

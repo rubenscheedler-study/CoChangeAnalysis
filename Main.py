@@ -7,13 +7,17 @@ from FilesPerCommit import files_per_commit_information
 from MBA import perform_mba
 from TimeBetweenCommits import time_between_commits
 from ThresholdAnalysis import threshold_distribution
+from dynamic_Warp import perform_dtw
 
 git_url = "https://github.com/apache/xerces2-j.git"
 clone_directory = "projects/xerces2-j/"
 branch = 'trunk'
-perform_mba()
+# warps = perform_dtw()
+rules = perform_mba()
+
+rules.to_csv("output/mba.csv")
 # Clone the repo we want to analyse.
-#Repo.clone_from(git_url, clone_directory)
+# Repo.clone_from(git_url, clone_directory)
 # repo = Repo(clone_directory)
 
 # Analyse the amount of files per commit for this repo.
