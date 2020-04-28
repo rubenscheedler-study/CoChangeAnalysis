@@ -8,4 +8,4 @@ def commits_per_commitday(repo, branch):
     for key, val in commitWithDate:
         d[key] = d.get(key, 0) + 1
 
-    print("Commits on a day: ", sum(d.values())/len(d))
+    print("Commits per commit day: ", sum(d.values())/len(d))

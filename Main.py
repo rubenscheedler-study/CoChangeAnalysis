@@ -10,17 +10,20 @@ from TimeBetweenCommits import time_between_commits
 from ThresholdAnalysis import threshold_distribution
 from dynamic_Warp import perform_dtw
 
-git_url = "https://github.com/apache/xerces2-j.git"
-clone_directory = "projects/xerces2-j/"
-branch = 'trunk'
+
+git_url = "https://github.com/SonarSource/sonarlint-intellij.git"
+clone_directory = "projects/sonarlint-intellij/"
+branch = 'master'
 warps = perform_dtw()
 warpdf = pd.DataFrame(warps, columns=['file1', 'file2'])
 warpdf.to_csv("output/dtw.csv")
 
 
+# warps = perform_dtw()
 rules = perform_mba()
 
 rules.to_csv("output/mba.csv")
+
 # Clone the repo we want to analyse.
 # Repo.clone_from(git_url, clone_directory)
 # repo = Repo(clone_directory)
