@@ -1,5 +1,6 @@
 from git import Repo
 import pandas as pd
+import numpy as np
 
 # Constants
 from CommitsPerCommitDay import commits_per_commitday
@@ -14,13 +15,26 @@ from dynamic_Warp import perform_dtw
 git_url = "https://github.com/SonarSource/sonarlint-intellij.git"
 clone_directory = "projects/sonarlint-intellij/"
 branch = 'master'
-warps = perform_dtw()
-warpdf = pd.DataFrame(warps, columns=['file1', 'file2'])
-warpdf.to_csv("output/dtw.csv")
+#warps = perform_dtw()
+#warpdf = pd.DataFrame(warps, columns=['file1', 'file2'])
+#warpdf = filter_duplicate_file_pairs(warpdf)
+#warpdf.to_csv("output/dtw.csv")
 
+
+def sort_tuple_elements(tuple_list):
+    return list(map(lambda t: (t[0], t[1]) if t[0] < t[1] else (t[1], t[0]), tuple_list))
+
+def filter_duplicate_file_pairs(dataframe):
+    result = sort_tuple_elements(list(zip(dataframe.file1, dataframe.file2)))
+    result = set(result)
+    return pd.DataFrame(result, columns=['file1', 'file2'])
 
 # warps = perform_dtw()
 rules = perform_mba()
+rules['file1'] = list(map(lambda x: next(iter(x)), rules['antecedents']))
+rules['file2'] = list(map(lambda x: next(iter(x)), rules['consequents']))
+rules = filter_duplicate_file_pairs(rules)
+#both ante en consequents are sets of length 1
 
 rules.to_csv("output/mba.csv")
 
