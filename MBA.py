@@ -2,10 +2,10 @@ from mlxtend.frequent_patterns import apriori
 from mlxtend.frequent_patterns import association_rules
 import pandas as pd
 from mlxtend.preprocessing import TransactionEncoder
-
+from config import input_directory
 
 def perform_mba():
-    components = pd.read_csv("input/component-characteristics-consecOnly.csv")
+    components = pd.read_csv(input_directory + "/component-characteristics-consecOnly.csv")
     # only consider classes, not packages
     orgcomponents = components[components['type'] == 'class']
     # filter on added or changed

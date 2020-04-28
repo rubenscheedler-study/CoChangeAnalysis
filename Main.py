@@ -7,7 +7,7 @@ from FilesPerCommit import files_per_commit_information
 from MBA import perform_mba
 from TimeBetweenCommits import time_between_commits
 from ThresholdAnalysis import threshold_distribution
-from dynamic_Warp import perform_dtw
+#from dynamic_Warp import perform_dtw
 
 git_url = "https://github.com/SonarSource/sonarlint-intellij.git"
 clone_directory = "projects/sonarlint-intellij/"
