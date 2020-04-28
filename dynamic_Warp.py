@@ -33,7 +33,7 @@ def perform_dtw():
         # drop rows we already had
         for y in grouped_comp.drop(grouped_comp.index[:x.Index + 1]).itertuples():
             if generate_dtw(x.changeMoments, y.changeMoments):
-                count = count+1
+                yield (x.name, y.name)
 
     print(count)
 

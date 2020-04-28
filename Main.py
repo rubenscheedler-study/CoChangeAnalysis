@@ -1,4 +1,5 @@
 from git import Repo
+import pandas as pd
 
 # Constants
 from CommitsPerCommitDay import commits_per_commitday
@@ -12,7 +13,11 @@ from dynamic_Warp import perform_dtw
 git_url = "https://github.com/apache/xerces2-j.git"
 clone_directory = "projects/xerces2-j/"
 branch = 'trunk'
-# warps = perform_dtw()
+warps = perform_dtw()
+warpdf = pd.DataFrame(warps, columns=['file1', 'file2'])
+warpdf.to_csv("output/dtw.csv")
+
+
 rules = perform_mba()
 
 rules.to_csv("output/mba.csv")
