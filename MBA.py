@@ -22,7 +22,7 @@ def perform_mba():
     te_ary = te.fit(components_list).transform(components_list)
     df = pd.DataFrame(te_ary, columns=te.columns_)
     # perform mba
-    return generate_basket_rules(df)
+    return (generate_basket_rules(df), components['name'])
 
 
 def generate_basket_rules(df):

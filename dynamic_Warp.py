@@ -27,15 +27,16 @@ def perform_dtw():
     grouped_comp = components.groupby('name')['version'].apply(list).reset_index(name='changeVersions')
     # generate list of change dates from versions
     grouped_comp['changeMoments'] = list(map(convert_hashlist_to_datelist, grouped_comp['changeVersions']))
-    count = 0
+
+    return_list = []
     # iterate over rows
     for x in grouped_comp.itertuples():
         # drop rows we already had
         for y in grouped_comp.drop(grouped_comp.index[:x.Index + 1]).itertuples():
             if generate_dtw(x.changeMoments, y.changeMoments):
-                yield (x.name, y.name)
+                return_list.append((x.name, y.name))
 
-    print(count)
+    return (return_list, components['name'])
 
 
 def convert_hashlist_to_datelist(hashlist):
