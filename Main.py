@@ -15,15 +15,6 @@ git_url = "https://github.com/SonarSource/sonarlint-intellij.git"
 clone_directory = "projects/sonarlint-intellij/"
 branch = 'master'
 
-
-# warps, changedFiles = perform_dtw()
-# warpdf = pd.DataFrame(warps, columns=['file1', 'file2'])
-# warpdf = filter_duplicate_file_pairs(warpdf)
-# all_pairs = generate_all_pairs(changedFiles)
-# warpdf.to_csv("output/dtw.csv")
-# all_pairs.to_csv("output/file_pairs_dtw.csv")
-
-
 def sort_tuple_elements(tuple_list):
     return list(map(lambda t: (t[0], t[1]) if t[0] < t[1] else (t[1], t[0]), tuple_list))
 
@@ -43,9 +34,14 @@ def generate_all_pairs(changedFiles):
             return_list.append((x, y))
     return pd.DataFrame(return_list, columns=['file1', 'file2'])
 
+warps, changedFiles = perform_dtw()
+warpdf = pd.DataFrame(warps, columns=['file1', 'file2'])
+warpdf = filter_duplicate_file_pairs(warpdf)
+all_pairs = generate_all_pairs(changedFiles)
+warpdf.to_csv("output/dtw.csv")
+all_pairs.to_csv("output/file_pairs_dtw.csv")
 
 
-# warps = perform_dtw()
 rules, changedFiles = perform_mba()
 rules['file1'] = list(map(lambda x: next(iter(x)), rules['antecedents']))
 rules['file2'] = list(map(lambda x: next(iter(x)), rules['consequents']))
