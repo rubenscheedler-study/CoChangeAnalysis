@@ -8,20 +8,21 @@ from itertools import combinations, chain
 from scipy import stats
 from scipy.stats import chi2
 
+from Utility import read_filename_pairs, sort_tuple_elements, get_project_smells_in_range
 from config import analysis_start_date, analysis_end_date, input_directory
 
 
 def analyze_results():
 
     # All pairs formed from all files changed in the relevant time frame.
-    all_pairs = sort_tuple_elements(find_all_pairs())
+    all_pairs = sort_tuple_elements(read_filename_pairs(input_directory + "/file_pairs.csv"))
     # All co-changed pairs with corresponding date range.
     co_changed_pairs_with_date_range = find_co_changed_pairs_with_date_range()
 
     co_changed_pairs_with_date_range['parsedStartDate'] = co_changed_pairs_with_date_range['startdate'].map(lambda x: datetime.datetime.strptime(x, '%d-%m-%Y'))
     co_changed_pairs_with_date_range['parsedEndDate'] = co_changed_pairs_with_date_range['enddate'].map(lambda x: datetime.datetime.strptime(x, '%d-%m-%Y'))
     # All smelly pairs of the whole analyzed history of the project.
-    smelly_pairs_with_date = find_smelly_pairs_with_date(analysis_start_date, analysis_end_date)
+    smelly_pairs_with_date = get_project_smells_in_range()
 
     distinct_smelly_pairs = set(smelly_pairs_with_date.apply(lambda row: (row.file1, row.file2), axis=1))
     smelly_pairs = sort_tuple_elements(distinct_smelly_pairs)
@@ -108,32 +109,6 @@ def find_co_changed_pairs_with_date_range():
     return pd.read_csv(input_directory + "/cochanges.csv")
 
 
-def find_all_pairs():
-    all_pairs = pd.read_csv(input_directory + "/file_pairs.csv")
-    full_path_pairs = list(zip(all_pairs.file1, all_pairs.file2))
-    return list(map(lambda pair: (map_path_to_filename(pair[0]), map_path_to_filename(pair[1])), full_path_pairs))
-
-
-def find_smelly_pairs_with_date(analysis_start_date, analysis_end_date):
-    smells = pd.read_csv(input_directory + "/smell-characteristics-consecOnly.csv")
-    smells = smells[smells.affectedComponentType == "class"]
-    # Add a column for the parsed version date.
-    smells['parsedVersionDate'] = smells['versionDate'].map(lambda x: datetime.datetime.strptime(x, '%d-%m-%Y'))
-    # filter rows on date range
-    smells = smells[smells.apply(lambda row: analysis_start_date <= row['parsedVersionDate'] <= analysis_end_date, axis=1)]
-    # Generate unique 2-sized combinations for each smell file list.
-    # These are the smelly pairs since they share a code smell.
-    ### non_unique_pairs = list(chain(*map(lambda files: combinations(files, 2), map(parse_affected_elements, smells_affected_elements))))
-    # For now we filter duplicate incidents of pairs being contained in smells.
-    ### smelly_pairs = set(non_unique_pairs)
-    smell_rows = reduce(
-            lambda a, b: pd.concat([a, b], ignore_index=True),  # Concat all smell sub-dfs into one big one.
-            smells.apply(explode_row_into_pairs, axis=1)
-    )
-
-    return smell_rows
-
-
 # Returns all co-changes that have a matching smell.
 def get_co_changed_smelly_pairs(co_change_df, smell_df):
     co_changes_smells = co_change_df.merge(smell_df, how='inner', left_on=['file1', 'file2'], right_on=['file1', 'file2'])
@@ -141,35 +116,7 @@ def get_co_changed_smelly_pairs(co_change_df, smell_df):
     return set(list(zip(matching_co_changes.file1, matching_co_changes.file2)))
 
 
-# Returns a DataFrame [file1, file2, parsedVersionDate]
-def explode_row_into_pairs(row):
-    # For this row (smell+version) see what files it affects.
-    affected_files = parse_affected_elements(row.affectedElements)
-    # Create a new row for each combination of two distinct files.
-    file_pairs = combinations(affected_files, 2)
-    file_pairs_with_date = list(map(lambda fp: fp+(row.parsedVersionDate,), file_pairs))
 
-    # Define the dataframe to return
-    return pd.DataFrame(file_pairs_with_date, columns=['file1', 'file2', 'parsedVersionDate'])
-
-
-# Parses a string of the form [a.java, b.java, ...]
-def parse_affected_elements(affected_elements_list_string):
-    return list(map(
-        lambda f: f + ".java",  # finally, add .java to each filename f
-        map(lambda p: p.split(".")[-1],  # map every package-file a.b.c to its file: c (last part)
-            affected_elements_list_string[1:-1].split(", ")  # split the list into its distinct files
-            )
-        )
-    )
-
-
-def map_path_to_filename(path):
-    return path.split("/")[-1]
-
-
-def sort_tuple_elements(tuple_list):
-    return list(map(lambda t: (t[0], t[1]) if t[0] < t[1] else (t[1], t[0]), tuple_list))
 
 
 analyze_results()
