@@ -2,18 +2,12 @@ from mlxtend.frequent_patterns import apriori
 from mlxtend.frequent_patterns import association_rules
 import pandas as pd
 from mlxtend.preprocessing import TransactionEncoder
-from config import input_directory
+
+from helper_scripts.components_helper import get_components
+
 
 def perform_mba():
-    components = pd.read_csv(input_directory + "/component-characteristics-consecOnly.csv")
-    # only consider classes, not packages
-    orgcomponents = components[components['type'] == 'class']
-    # filter on added or changed
-    componentsZero = orgcomponents[orgcomponents['changeHasOccurredMetric'] == '0']
-    componentsTrue = orgcomponents[orgcomponents['changeHasOccurredMetric'] == True]
-    components = componentsZero.append(componentsTrue, ignore_index=True)
-    length = len(components.index)
-    components = components[['version', 'name']]
+    components = get_components()
     # group names by version
     grouped_comp = components.groupby('version')['name'].apply(list).reset_index(name='shoppingList')
     components_list = grouped_comp['shoppingList']
@@ -22,7 +16,10 @@ def perform_mba():
     te_ary = te.fit(components_list).transform(components_list)
     df = pd.DataFrame(te_ary, columns=te.columns_)
     # perform mba
-    return (generate_basket_rules(df), components['name'])
+    rules = generate_basket_rules(df)
+    rules['file1'] = list(map(lambda x: next(iter(x)), rules['antecedents']))
+    rules['file2'] = list(map(lambda x: next(iter(x)), rules['consequents']))
+    return rules, components['name']
 
 
 def generate_basket_rules(df):
