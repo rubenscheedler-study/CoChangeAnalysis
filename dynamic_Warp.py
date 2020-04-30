@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from dtw import dtw, dtwPlot
+from dtw import dtw
 import pandas as pd
 from github import Github
 from config import input_directory
