@@ -1,20 +1,21 @@
 from datetime import datetime
 
-from dtw import dtw, dtwPlot
+from dtw import dtw
 import pandas as pd
 from github import Github
+from config import input_directory
 
 g = Github('a0b658d0dc9342b2fe5ba236ec4f2d5a29ef85dc')
 repo = g.get_repo("apache/xerces2-j")
 # get all version we have based on the smells with their date
-smellpd = pd.read_csv("input/smell-characteristics-consecOnly.csv")[['version', 'versionDate']]
+smellpd = pd.read_csv(input_directory+"/smell-characteristics-consecOnly.csv")[['version', 'versionDate']]
 # convert to valid timestamp
 smellpd['versionDatetime'] = list(map(lambda x: datetime.timestamp(datetime.strptime(x, '%d-%m-%Y')), smellpd['versionDate']))
 smells = dict(zip(smellpd.version, smellpd.versionDatetime))
 
 
 def perform_dtw():
-    components = pd.read_csv("input/component-characteristics-consecOnly.csv")
+    components = pd.read_csv(input_directory+"/component-characteristics-consecOnly.csv")
     # only consider classes, not packages
     orgcomponents = components[components['type'] == 'class']
     # filter on added or changed
