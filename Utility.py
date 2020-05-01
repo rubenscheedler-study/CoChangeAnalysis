@@ -46,15 +46,25 @@ def explode_row_into_pairs(row):
     return pd.DataFrame(file_pairs_with_date, columns=['file1', 'file2', 'parsedVersionDate'])
 
 
-# Parses a string of the form [a.java, b.java, ...]
-def parse_affected_elements(affected_elements_list_string):
-    return list(map(
-        lambda f: f + ".java",  # finally, add .java to each filename f
-        map(lambda p: p.split(".")[-1],  # map every package-file a.b.c to its file: c (last part)
-            affected_elements_list_string[1:-1].split(", ")  # split the list into its distinct files
+# Parses a string of the form [package.class$innerclass, package.class$innerclass, ...] to [class.java, class.java, ...]
+# Ignore_inner_classes maps inner classes to their outer class.
+def parse_affected_elements(affected_elements_list_string, ignore_inner_classes=True):
+    return list(
+        map(
+            lambda p: get_class_from_package(p, ignore_inner_classes),
+            map(lambda p: p.split(".")[-1],  # map every package-file a.b.c to its file: c (last part)
+                affected_elements_list_string[1:-1].split(", ")  # split the list into its distinct files
+                )
             )
         )
-    )
+
+
+# Parses package.package.class$innerclass.java to either class or class$innerclass.java
+def get_class_from_package(package_file_path, ignore_inner_classes=True):
+    raw_class_name = package_file_path.split(".")[-1]
+    if ignore_inner_classes:
+        raw_class_name = raw_class_name.split("$")[0]
+    return raw_class_name + ".java"
 
 
 def map_path_to_filename(path):
