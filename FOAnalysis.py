@@ -8,33 +8,38 @@ from itertools import combinations, chain
 from scipy import stats
 from scipy.stats import chi2
 
-from Utility import read_filename_pairs, sort_tuple_elements, get_project_smells_in_range
+from Utility import read_filename_pairs, sort_tuple_elements, get_project_smells_in_range, order_file1_and_file2, get_intersecting_file_pairs, get_class_from_package, difference_on_file_names, to_unique_file_tuples
 from config import analysis_start_date, analysis_end_date, input_directory
 
 
 def analyze_results():
 
     # All pairs formed from all files changed in the relevant time frame.
-    all_pairs = sort_tuple_elements(read_filename_pairs(input_directory + "/file_pairs.csv"))
+    all_pairs = pd.read_csv(input_directory + "/file_pairs.csv")
+    all_pairs['file1'] = all_pairs['file1'].apply(lambda s: get_class_from_package(s, True))
+    all_pairs['file2'] = all_pairs['file2'].apply(lambda s: get_class_from_package(s, True))
+    all_pairs = order_file1_and_file2(all_pairs)
+
     # All co-changed pairs with corresponding date range.
-    co_changed_pairs_with_date_range = find_co_changed_pairs_with_date_range()
+    co_changed_pairs_with_date_range = order_file1_and_file2(find_co_changed_pairs_with_date_range())
 
-    co_changed_pairs_with_date_range['parsedStartDate'] = co_changed_pairs_with_date_range['startdate'].map(lambda x: datetime.datetime.strptime(x, '%d-%m-%Y'))
-    co_changed_pairs_with_date_range['parsedEndDate'] = co_changed_pairs_with_date_range['enddate'].map(lambda x: datetime.datetime.strptime(x, '%d-%m-%Y'))
     # All smelly pairs of the whole analyzed history of the project.
-    smelly_pairs_with_date = get_project_smells_in_range()
+    smelly_pairs_with_date = order_file1_and_file2(get_project_smells_in_range())
 
-    distinct_smelly_pairs = set(smelly_pairs_with_date.apply(lambda row: (row.file1, row.file2), axis=1))
-    smelly_pairs = sort_tuple_elements(distinct_smelly_pairs)
+    # Find intersection between smells and co-changes.
+    matching_co_changes = get_co_changed_smelly_pairs(co_changed_pairs_with_date_range, smelly_pairs_with_date)
+    smelling_co_changing_pairs = set(list(zip(matching_co_changes.file1, matching_co_changes.file2)))
+
+    #distinct_smelly_pairs = set(smelly_pairs_with_date.apply(lambda row: (row.file1, row.file2), axis=1))
+    #smelly_pairs = distinct_smelly_pairs  # TODO is this indeed sorted?
     # Only keep the smelly pairs that are part of 'all_pairs'
-    relevant_smelly_pairs = set(smelly_pairs).intersection(all_pairs)
-    co_changed_pairs = sort_tuple_elements(list(zip(co_changed_pairs_with_date_range.file1, co_changed_pairs_with_date_range.file2)))
+    relevant_smelly_pairs = difference_on_file_names(smelly_pairs_with_date, all_pairs)
+    #co_changed_pairs = sort_tuple_elements(list(zip(co_changed_pairs_with_date_range.file1, co_changed_pairs_with_date_range.file2)))
 
     # Calculate sets for contingency table
-    non_smelling_non_co_changing_pairs = set(all_pairs).difference(relevant_smelly_pairs).difference(co_changed_pairs)
-    non_smelling_co_changing_pairs = set(co_changed_pairs).difference(relevant_smelly_pairs)
-    smelling_non_co_changing_pairs = set(relevant_smelly_pairs).difference(co_changed_pairs)
-    smelling_co_changing_pairs = get_co_changed_smelly_pairs(co_changed_pairs_with_date_range, smelly_pairs_with_date)
+    non_smelling_non_co_changing_pairs = to_unique_file_tuples(difference_on_file_names(difference_on_file_names(all_pairs, relevant_smelly_pairs), co_changed_pairs_with_date_range))
+    non_smelling_co_changing_pairs = to_unique_file_tuples(difference_on_file_names(co_changed_pairs_with_date_range, relevant_smelly_pairs))
+    smelling_non_co_changing_pairs = to_unique_file_tuples(difference_on_file_names(relevant_smelly_pairs, co_changed_pairs_with_date_range))
 
     # Save the pairs in csv files
     pd.DataFrame(list(non_smelling_non_co_changing_pairs)).to_csv('output/non_smelling_non_co_changing_pairs.csv', index=False, header=True)
@@ -52,9 +57,9 @@ def analyze_results():
     n = non_smelling_non_co_changing_pairs_size + non_smelling_co_changing_pairs_size + smelling_non_co_changing_pairs_size + smelling_co_changing_pairs_size
     print("general information:")
     print("all_pairs size: " + str(len(all_pairs)))
-    print("smelly_pairs size: " + str(len(smelly_pairs)))
+    print("smelly_pairs size: " + str(len(smelly_pairs_with_date)))
     print("relevant_smelly_pairs size: " + str(len(relevant_smelly_pairs)))
-    print("co_changed_pairs size: " + str(len(co_changed_pairs)))
+    print("co_changed_pairs size: " + str(len(co_changed_pairs_with_date_range)))
     print("\n")
 
     perform_chi2_analysis(non_smelling_non_co_changing_pairs_size, non_smelling_co_changing_pairs_size, smelling_non_co_changing_pairs_size, smelling_co_changing_pairs_size, n)
@@ -106,14 +111,17 @@ def odds_ratio(non_smelling_non_co_changing_pairs, non_smelling_co_changing_pair
 
 
 def find_co_changed_pairs_with_date_range():
-    return pd.read_csv(input_directory + "/cochanges.csv")
+    co_changed_pairs_with_date_range = pd.read_csv(input_directory + "/cochanges.csv")
+    co_changed_pairs_with_date_range['parsedStartDate'] = co_changed_pairs_with_date_range['startdate'].map(lambda x: datetime.datetime.strptime(x, '%d-%m-%Y'))
+    co_changed_pairs_with_date_range['parsedEndDate'] = co_changed_pairs_with_date_range['enddate'].map(lambda x: datetime.datetime.strptime(x, '%d-%m-%Y'))
+    return co_changed_pairs_with_date_range
 
 
-# Returns all co-changes that have a matching smell.
+# Returns all co-changes that have a matching smell. Note: can contain duplicates.
 def get_co_changed_smelly_pairs(co_change_df, smell_df):
     co_changes_smells = co_change_df.merge(smell_df, how='inner', left_on=['file1', 'file2'], right_on=['file1', 'file2'])
     matching_co_changes = co_changes_smells[co_changes_smells.apply(lambda row: row['parsedStartDate'] <= row['parsedVersionDate'] <= row['parsedEndDate'], axis=1)]
-    return set(list(zip(matching_co_changes.file1, matching_co_changes.file2)))
+    return matching_co_changes
 
 
 

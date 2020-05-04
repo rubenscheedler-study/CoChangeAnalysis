@@ -24,8 +24,8 @@ changedFiles = list(map(get_class_from_package, changedFiles))
 
 warpdf = filter_duplicate_file_pairs(warps)
 # Map warps to class.java
-warpdf['file1'] = warpdf['file1'].apply(get_class_from_package)
-warpdf['file2'] = warpdf['file2'].apply(get_class_from_package)
+warpdf['file1'] = warpdf['file1'].apply(lambda f: get_class_from_package(f, False))
+warpdf['file2'] = warpdf['file2'].apply(lambda f: get_class_from_package(f, False))
 
 all_pairs = generate_all_pairs(changedFiles)
 warpdf.to_csv(output_directory + "/dtw.csv")
@@ -37,8 +37,8 @@ changedFiles = list(map(get_class_from_package, changedFiles))
 
 rules = filter_duplicate_file_pairs(rules)
 # Map warps to class.java
-rules['file1'] = rules['file1'].apply(get_class_from_package)
-rules['file2'] = rules['file2'].apply(get_class_from_package)
+rules['file1'] = rules['file1'].apply(lambda f: get_class_from_package(f, False))
+rules['file2'] = rules['file2'].apply(lambda f: get_class_from_package(f, False))
 
 all_pairs_mba = generate_all_pairs(changedFiles)
 # both ante en consequents are sets of length 1
