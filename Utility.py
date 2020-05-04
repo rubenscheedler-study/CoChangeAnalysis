@@ -93,19 +93,32 @@ def swap_file1_and_file2(row):
 
 # Joins the two data frames on file1 and file2 and returns distinct matching (file1, file2) tuples.
 def get_intersecting_file_pairs(df1, df2):
-    matched_df = df1.merge(df2, how='inner', left_on=['file1', 'file2'], right_on=['file1', 'file2'])
+    df2 = df2.rename(columns={"file1": "a", "file2": "b"})
+    matched_df = df1.merge(df2, how='inner', left_on=['file1', 'file2'], right_on=['a', 'b'])
+    matched_df = matched_df.drop(columns=['a', 'b'])
     return set(list(zip(matched_df.file1, matched_df.file2)))
 
 
 def get_not_intersecting_file_pairs(df1, df2):
-    not_matched_df = df1.merge(df2, how='left', left_on=['file1', 'file2'], right_on=['file1', 'file2'], indicator='i').query('i == "left_only"').drop('i', 1)
+    df2 = df2.rename(columns={"file1": "a", "file2": "b"})
+    not_matched_df = df1.merge(df2, how='left', left_on=['file1', 'file2'], right_on=['a', 'b'], indicator='i').query('i == "left_only"').drop('i', 1)
+    not_matched_df = not_matched_df.drop(columns=['a', 'b'])
     return set(list(zip(not_matched_df.file1, not_matched_df.file2)))
 
 
+def intersection_on_file_names(df1, df2):
+    df2 = df2.rename(columns={"file1": "a", "file2": "b"})
+    matched_df = df1.merge(df2, how='inner', left_on=['file1', 'file2'], right_on=['a', 'b'])
+    matched_df = matched_df.drop(columns=['a', 'b'])
+    return matched_df
+
+
 def difference_on_file_names(df1, df2):
-    not_matched_df = df1.merge(df2, how='left', left_on=['file1', 'file2'], right_on=['file1', 'file2'], indicator='i').query('i == "left_only"').drop('i', 1)
+    df2 = df2.rename(columns={"file1": "a", "file2": "b"})
+    not_matched_df = df1.merge(df2, how='left', left_on=['file1', 'file2'], right_on=['a', 'b'], indicator='i').query('i == "left_only"').drop('i', 1)
+    not_matched_df = not_matched_df.drop(columns=['a', 'b'])
     return not_matched_df
 
 
 def to_unique_file_tuples(df):
-    return set(list(zip(df.file1, df.file2)))
+    return set(list(filter(lambda x: x[0] != x[1], zip(df.file1, df.file2))))
