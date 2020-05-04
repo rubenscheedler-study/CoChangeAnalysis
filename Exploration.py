@@ -1,18 +1,19 @@
+from matplotlib_venn import venn3, venn2
+
 from Utility import read_filename_pairs, get_project_smells_in_range, sort_tuple_elements
 from config import output_directory, input_directory
-
+from matplotlib import pyplot as plt
 
 def run_exploration():
     calculate_smell_co_change_overlaps()
 
 
 def calculate_smell_co_change_overlaps():
-
-
-    print_overlap_dtw()
-    print_overlap_mba()
-    print_overlap_fo()
-
+    dtw_pairs = set(print_overlap_dtw())
+    mba_pairs = set(print_overlap_mba())
+    #fo_pairs = set(print_overlap_fo())
+    venn2([dtw_pairs, mba_pairs], ('dtw', 'mba'))
+    plt.show()
 
 def print_overlap_dtw():
     print("--- Overlap DTW co-changes and smells: ---")
@@ -37,6 +38,7 @@ def print_overlap_dtw():
     print("overlapping pairs:")
     for pair in overlapping_pairs:
         print(pair[0], ", ", pair[1])
+    return overlapping_pairs
 
 def print_overlap_mba():
     print("--- Overlap MBA co-changes and smells: ---")
@@ -61,6 +63,7 @@ def print_overlap_mba():
     print("overlapping pairs:")
     for pair in overlapping_pairs:
         print(pair[0], ", ", pair[1])
+    return overlapping_pairs
 
 
 def print_overlap_fo():
@@ -86,5 +89,5 @@ def print_overlap_fo():
     print("overlapping pairs:")
     for pair in overlapping_pairs:
         print(pair[0], ", ", pair[1])
+    return overlapping_pairs
 
-run_exploration()

@@ -13,6 +13,7 @@ scipy = "*"
 mlxtend = "*"
 dtw-python = "*"
 PyGithub = "*"
+matplotlib-venn = "*"
 
 [requires]
 python_version = "3.8"
