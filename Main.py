@@ -11,6 +11,7 @@ from ThresholdAnalysis import threshold_distribution
 from Utility import get_class_from_package
 from config import output_directory
 from dynamic_Warp import perform_dtw
+from helper_scripts.Commit_date_helper import add_file_dates
 from helper_scripts.output_helper import filter_duplicate_file_pairs, generate_all_pairs
 
 git_url = "https://github.com/SonarSource/sonarlint-intellij.git"
@@ -23,12 +24,15 @@ warps, changedFiles = perform_dtw()
 changedFiles = list(map(get_class_from_package, changedFiles))
 
 warpdf = filter_duplicate_file_pairs(warps)
-# Map warps to class.java
-warpdf['file1'] = warpdf['file1'].apply(lambda f: get_class_from_package(f, False))
-warpdf['file2'] = warpdf['file2'].apply(lambda f: get_class_from_package(f, False))
 
 all_pairs = generate_all_pairs(changedFiles)
-warpdf.to_csv(output_directory + "/dtw.csv")
+warp_with_dates = add_file_dates(warpdf)
+
+# Map warps to class.java
+warp_with_dates['file1'] = warp_with_dates['file1'].apply(lambda f: get_class_from_package(f, False))
+warp_with_dates['file2'] = warp_with_dates['file2'].apply(lambda f: get_class_from_package(f, False))
+
+warp_with_dates.to_csv(output_directory + "/dtw.csv")
 all_pairs.to_csv(output_directory + "/file_pairs_dtw.csv")
 
 rules, changedFiles = perform_mba()
@@ -36,14 +40,15 @@ rules, changedFiles = perform_mba()
 changedFiles = list(map(get_class_from_package, changedFiles))
 
 rules = filter_duplicate_file_pairs(rules)
-# Map warps to class.java
-rules['file1'] = rules['file1'].apply(lambda f: get_class_from_package(f, False))
-rules['file2'] = rules['file2'].apply(lambda f: get_class_from_package(f, False))
 
 all_pairs_mba = generate_all_pairs(changedFiles)
-# both ante en consequents are sets of length 1
+rules_with_dates = add_file_dates(rules)
 
-rules.to_csv(output_directory + "/mba.csv")
+# Map warps to class.java
+rules_with_dates['file1'] = rules_with_dates['file1'].apply(lambda f: get_class_from_package(f, False))
+rules_with_dates['file2'] = rules_with_dates['file2'].apply(lambda f: get_class_from_package(f, False))
+
+rules_with_dates.to_csv(output_directory + "/mba.csv")
 all_pairs_mba.to_csv(output_directory + "/file_pairs_mba.csv")
 
 # Clone the repo we want to analyse.
