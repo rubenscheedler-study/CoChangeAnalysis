@@ -58,13 +58,16 @@ def parse_affected_elements(affected_elements_list_string):
         )
 
 
-# Parses package.package.class$innerclass.java to either class or class$innerclass.java
+# Parses package.package.class$innerclass(.java) to either class or class$innerclass(.java)
 def get_class_from_package(package_file_path, ignore_inner_classes=True):
     package_file_path = map_path_to_filename(package_file_path)
     raw_class_name = package_file_path
 
     if "." in package_file_path:
-        raw_class_name = package_file_path.split(".")[-2]
+        if package_file_path.split(".")[-1] == "java":
+            raw_class_name = package_file_path.split(".")[-2]
+        else:
+            raw_class_name = package_file_path.split(".")[-1]
 
     if ignore_inner_classes and "$" in raw_class_name:
         raw_class_name = raw_class_name.split("$")[0]

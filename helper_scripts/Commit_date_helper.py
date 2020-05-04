@@ -1,10 +1,12 @@
 from github import Github
+
+import config
 from config import input_directory
 import pandas as pd
 from datetime import datetime
 
 g = Github('a0b658d0dc9342b2fe5ba236ec4f2d5a29ef85dc')
-repo = g.get_repo("SonarSource/sonarlint-intellij")
+repo = g.get_repo(config.git_repo)
 # get all version we have based on the smells with their date
 smell_pd = pd.read_csv(input_directory + "/smell-characteristics-consecOnly.csv")[['version', 'versionDate']]
 # convert to valid timestamp
