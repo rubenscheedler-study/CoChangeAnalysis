@@ -27,8 +27,8 @@ def analyze_results():
     smelly_pairs_with_date = order_file1_and_file2(get_project_smells_in_range())
 
     # Find intersection between smells and co-changes.
-    matching_co_changes = get_co_changed_smelly_pairs(co_changed_pairs_with_date_range, smelly_pairs_with_date)
-    smelling_co_changing_pairs = set(list(zip(matching_co_changes.file1, matching_co_changes.file2)))
+    smelling_co_changing_pairs_df = get_co_changed_smelly_pairs(co_changed_pairs_with_date_range, smelly_pairs_with_date)
+    smelling_co_changing_pairs = set(list(zip(smelling_co_changing_pairs_df.file1, smelling_co_changing_pairs_df.file2)))
 
     #distinct_smelly_pairs = set(smelly_pairs_with_date.apply(lambda row: (row.file1, row.file2), axis=1))
     #smelly_pairs = distinct_smelly_pairs  # TODO is this indeed sorted?
@@ -39,13 +39,13 @@ def analyze_results():
     # Calculate sets for contingency table
     non_smelling_non_co_changing_pairs = to_unique_file_tuples(difference_on_file_names(difference_on_file_names(all_pairs, relevant_smelly_pairs), co_changed_pairs_with_date_range))
     non_smelling_co_changing_pairs = to_unique_file_tuples(difference_on_file_names(co_changed_pairs_with_date_range, relevant_smelly_pairs))
-    smelling_non_co_changing_pairs = to_unique_file_tuples(difference_on_file_names(relevant_smelly_pairs, co_changed_pairs_with_date_range))
+    smelling_non_co_changing_pairs = to_unique_file_tuples(difference_on_file_names(relevant_smelly_pairs, smelling_co_changing_pairs_df))
 
     # Save the pairs in csv files
-    pd.DataFrame(list(non_smelling_non_co_changing_pairs)).to_csv('output/non_smelling_non_co_changing_pairs.csv', index=False, header=True)
-    pd.DataFrame(list(non_smelling_co_changing_pairs)).to_csv('output/non_smelling_co_changing_pairs.csv', index=False, header=True)
-    pd.DataFrame(list(smelling_non_co_changing_pairs)).to_csv('output/smelling_non_co_changing_pairs.csv', index=False, header=True)
-    pd.DataFrame(list(smelling_co_changing_pairs)).to_csv('output/smelling_co_changing_pairs.csv', index=False, header=True)
+    #pd.DataFrame(list(non_smelling_non_co_changing_pairs)).to_csv('output/non_smelling_non_co_changing_pairs.csv', index=False, header=True)
+    #pd.DataFrame(list(non_smelling_co_changing_pairs)).to_csv('output/non_smelling_co_changing_pairs.csv', index=False, header=True)
+    #pd.DataFrame(list(smelling_non_co_changing_pairs)).to_csv('output/smelling_non_co_changing_pairs.csv', index=False, header=True)
+    #pd.DataFrame(list(smelling_co_changing_pairs)).to_csv('output/smelling_co_changing_pairs.csv', index=False, header=True)
 
     # Calculate values of the contingency table cells
     non_smelling_non_co_changing_pairs_size = len(non_smelling_non_co_changing_pairs)
@@ -56,10 +56,10 @@ def analyze_results():
     # total amount of observations
     n = non_smelling_non_co_changing_pairs_size + non_smelling_co_changing_pairs_size + smelling_non_co_changing_pairs_size + smelling_co_changing_pairs_size
     print("general information:")
-    print("all_pairs size: " + str(len(all_pairs)))
-    print("smelly_pairs size: " + str(len(smelly_pairs_with_date)))
-    print("relevant_smelly_pairs size: " + str(len(relevant_smelly_pairs)))
-    print("co_changed_pairs size: " + str(len(co_changed_pairs_with_date_range)))
+    print("all changed file pairs during the history: " + str(len(all_pairs)))
+    print("class level smells in project: " + str(len(smelly_pairs_with_date)))
+    print("smells contained in all pairs: " + str(len(relevant_smelly_pairs)))
+    print("all co changes in project: " + str(len(co_changed_pairs_with_date_range)))
     print("\n")
 
     perform_chi2_analysis(non_smelling_non_co_changing_pairs_size, non_smelling_co_changing_pairs_size, smelling_non_co_changing_pairs_size, smelling_co_changing_pairs_size, n)
