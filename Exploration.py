@@ -1,5 +1,6 @@
 from matplotlib_venn import venn3, venn2
 
+from FOAnalysis import get_pairs
 from Utility import read_filename_pairs, get_project_smells_in_range, sort_tuple_elements
 from config import output_directory, input_directory
 from matplotlib import pyplot as plt
@@ -11,8 +12,8 @@ def run_exploration():
 def calculate_smell_co_change_overlaps():
     dtw_pairs = set(print_overlap_dtw())
     mba_pairs = set(print_overlap_mba())
-    #fo_pairs = set(print_overlap_fo())
-    venn2([dtw_pairs, mba_pairs], ('dtw', 'mba'))
+    fo_pairs = set(print_overlap_fo())
+    venn3([dtw_pairs, mba_pairs, fo_pairs], ('dtw', 'mba', 'fo'))
     plt.show()
 
 def print_overlap_dtw():
@@ -68,26 +69,17 @@ def print_overlap_mba():
 
 def print_overlap_fo():
     print("--- Overlap Fuzzy Overlap co-changes and smells: ---")
-    fo_all_pairs = sort_tuple_elements(read_filename_pairs(input_directory + "/file_pairs.csv"))
-    fo_cc_pairs = sort_tuple_elements(read_filename_pairs(input_directory + "/cochanges.csv"))
-
-    # Get raw smell pairs
-    smell_pairs_with_date = get_project_smells_in_range(True)
-    smelly_pairs = set(smell_pairs_with_date.apply(lambda row: (row.file1, row.file2), axis=1))
-
-    distinct_smelly_pairs = set(sort_tuple_elements(smelly_pairs))
-    relevant_smelly_pairs = set(distinct_smelly_pairs).intersection(fo_all_pairs)
-
-    overlapping_pairs = relevant_smelly_pairs.intersection(fo_cc_pairs)
+    smelling_co_changing_pairs, smelly_pairs, fo_cc_pairs, fo_all_pairs = get_pairs()
+    relevant_smelly_pairs = smelly_pairs.intersection(fo_all_pairs)
 
     print("FO all pairs:\t\t", len(fo_all_pairs))
     print("FO co-change pairs:\t\t", len(fo_cc_pairs))
     print("All smell pairs:\t\t", len(smelly_pairs))
     print("Relevant smell pairs:\t\t", len(relevant_smelly_pairs))
-    print("Overlapping pairs:\t\t", len(overlapping_pairs))
-    print("Overlap ratio:\t\t", 100 * (len(overlapping_pairs) / len(relevant_smelly_pairs)))
+    print("Overlapping pairs:\t\t", len(smelling_co_changing_pairs))
+    print("Overlap ratio:\t\t", 100 * (len(smelling_co_changing_pairs) / len(relevant_smelly_pairs)))
     print("overlapping pairs:")
-    for pair in overlapping_pairs:
+    for pair in smelling_co_changing_pairs:
         print(pair[0], ", ", pair[1])
-    return overlapping_pairs
+    return smelling_co_changing_pairs
 
