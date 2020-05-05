@@ -8,6 +8,8 @@ def get_components():
     components = pd.read_csv(input_directory + "/component-characteristics-consecOnly.csv")
     # only consider classes, not packages
     class_components = components[components['type'] == 'class']
+    mask = ~class_components['name'].str.contains("$", regex=False)
+    class_components = class_components[mask]
     # filter on added or changed
     components_zero = class_components[class_components['changeHasOccurredMetric'] == '0']
     components_true = class_components[class_components['changeHasOccurredMetric'] == True]
