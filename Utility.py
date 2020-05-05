@@ -18,6 +18,8 @@ def read_filename_pairs(path_to_csv):
 def get_project_smells_in_range(ignore_inner_classes=True):
     smells = pd.read_csv(input_directory + "/smell-characteristics-consecOnly.csv")
     smells = smells[smells.affectedComponentType == "class"]
+    mask = ~smells['name'].str.contains("$", regex=False)
+    smells = smells[mask]
     # Add a column for the parsed version date.
     smells['parsedVersionDate'] = smells['versionDate'].map(lambda x: datetime.datetime.strptime(x, '%d-%m-%Y'))
     # filter rows on date range
