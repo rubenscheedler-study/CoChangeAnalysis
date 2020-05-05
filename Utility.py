@@ -1,6 +1,7 @@
 import datetime
 from functools import reduce
 from itertools import combinations
+import numpy as np
 
 import pandas as pd
 
@@ -57,6 +58,9 @@ def parse_affected_elements(affected_elements_list_string):
                 )
         )
 
+def sort_tuple_elements(tuple_list):
+    return list(map(lambda t: (t[0], t[1]) if t[0] < t[1] else (t[1], t[0]), tuple_list))
+
 
 # Parses package.package.class$innerclass(.java) to either class or class$innerclass(.java)
 def get_class_from_package(package_file_path, ignore_inner_classes=True):
@@ -78,20 +82,10 @@ def map_path_to_filename(path):
     return path.split("/")[-1]
 
 
-def sort_tuple_elements(tuple_list):
-    return list(map(lambda t: (t[0], t[1]) if t[0] < t[1] else (t[1], t[0]), tuple_list))
-
-
 # Swaps file1 and file2 if they are not in alphabetical order.
 def order_file1_and_file2(df):
-    return df.apply(lambda row: row if row.file1 < row.file2 else swap_file1_and_file2(row), axis=1)
-
-
-def swap_file1_and_file2(row):
-    file1_old = row.file1
-    row.file1 = row.file2
-    row.file2 = file1_old
-    return row
+    df['file1'], df['file2'] = np.minimum(df['file1'], df['file2']), np.maximum(df['file1'], df['file2'])
+    return df
 
 
 # Joins the two data frames on file1 and file2 and returns distinct matching (file1, file2) tuples.

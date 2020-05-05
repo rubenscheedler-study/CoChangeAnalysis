@@ -8,7 +8,7 @@ from itertools import combinations, chain
 from scipy import stats
 from scipy.stats import chi2
 
-from Utility import read_filename_pairs, sort_tuple_elements, get_project_smells_in_range, order_file1_and_file2, get_intersecting_file_pairs, get_class_from_package, difference_on_file_names, to_unique_file_tuples, \
+from Utility import read_filename_pairs, get_project_smells_in_range, order_file1_and_file2, get_intersecting_file_pairs, get_class_from_package, difference_on_file_names, to_unique_file_tuples, \
     intersection_on_file_names
 from config import analysis_start_date, analysis_end_date, input_directory
 
@@ -54,8 +54,8 @@ def analyze_results():
 def get_pairs():
     # All pairs formed from all files changed in the relevant time frame.
     all_pairs_df = pd.read_csv(input_directory + "/file_pairs.csv")
-    all_pairs_df['file1'] = all_pairs_df['file1'].apply(lambda s: get_class_from_package(s, True))
-    all_pairs_df['file2'] = all_pairs_df['file2'].apply(lambda s: get_class_from_package(s, True))
+    all_pairs_df['file1'] = [get_class_from_package(s, True) for s in all_pairs_df["file1"].values]
+    all_pairs_df['file2'] = [get_class_from_package(s, True) for s in all_pairs_df["file2"].values]
     all_pairs_df = order_file1_and_file2(all_pairs_df)
 
     # All co-changed pairs with corresponding date range.
@@ -132,8 +132,3 @@ def get_co_changed_smelly_pairs(co_change_df, smell_df):
     matching_co_changes = co_changes_smells[co_changes_smells.apply(lambda row: row['parsedStartDate'] <= row['parsedVersionDate'] <= row['parsedEndDate'], axis=1)]
     return matching_co_changes
 
-
-
-
-
-analyze_results()

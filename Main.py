@@ -41,6 +41,9 @@ def hyper_param_analysis():
 
 #hyper_param_analysis()
 
+#threshold_distribution()
+
+"""
 warps, changedFiles = perform_dtw()
 
 # Map changed files to class.java
@@ -74,9 +77,6 @@ rules_with_dates['file2'] = rules_with_dates['file2'].apply(lambda f: get_class_
 rules_with_dates.to_csv(output_directory + "/mba.csv")
 all_pairs_mba.to_csv(output_directory + "/file_pairs_mba.csv")
 
+"""
 run_exploration()
-
-
-# Histogram of thresholds (make sure to update cochanges.csv!)
-# threshold_distribution()
 

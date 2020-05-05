@@ -2,10 +2,12 @@ import csv
 import matplotlib.pyplot as plt
 import numpy as np
 
+from config import input_directory
+
 
 def threshold_distribution():
     # read csv
-    with open('cochanges.csv', newline='') as csv_file:
+    with open(input_directory + '/cochanges.csv', newline='') as csv_file:
         thresholdData = list(csv.reader(csv_file))[1:]
     thresholds = list(map(lambda x: int(x), list(zip(*thresholdData))[2]))
     # get highest threshold

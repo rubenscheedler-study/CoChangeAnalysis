@@ -34,7 +34,7 @@ def convert_hashlist_to_datelist(hashlist):
 
 
 def add_file_dates(df):
-    df[['startdate','enddate']] = df.apply(lambda x: get_date_window(x.file1, x.file2), axis = 1, result_type='broadcast')
+    df[['startdate', 'enddate']] = df.apply(lambda x: get_date_window(x.file1, x.file2), axis = 1, result_type='broadcast')
     return df
 
 
