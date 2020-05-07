@@ -8,8 +8,9 @@ from itertools import combinations, chain
 from scipy import stats
 from scipy.stats import chi2
 
-from Utility import read_filename_pairs, get_project_smells_in_range, order_file1_and_file2, get_intersecting_file_pairs, get_class_from_package, difference_on_file_names, to_unique_file_tuples, \
-    intersection_on_file_names
+from Utility import read_filename_pairs, get_project_smells_in_range, order_file1_and_file2, \
+    get_intersecting_file_pairs, get_class_from_package, difference_on_file_names, to_unique_file_tuples, \
+    intersection_on_file_names, find_pairs_with_date_range
 from config import analysis_start_date, analysis_end_date, input_directory
 
 
@@ -59,7 +60,7 @@ def get_pairs():
     all_pairs_df = order_file1_and_file2(all_pairs_df)
 
     # All co-changed pairs with corresponding date range.
-    co_changed_pairs_with_date_range = order_file1_and_file2(find_co_changed_pairs_with_date_range())
+    co_changed_pairs_with_date_range = order_file1_and_file2(find_pairs_with_date_range(input_directory + "/cochanges.csv", '%d-%m-%Y'))
     co_changed_pairs = to_unique_file_tuples(co_changed_pairs_with_date_range)
 
     # All smelly pairs of the whole analyzed history of the project.
@@ -117,13 +118,6 @@ def perform_chi2_analysis(non_smelling_non_co_changing_pairs, non_smelling_co_ch
 
 def odds_ratio(non_smelling_non_co_changing_pairs, non_smelling_co_changing_pairs, smelling_non_co_changing_pairs, smelling_co_changing_pairs):
     return (non_smelling_non_co_changing_pairs*smelling_co_changing_pairs)/(non_smelling_co_changing_pairs*smelling_non_co_changing_pairs)
-
-
-def find_co_changed_pairs_with_date_range():
-    co_changed_pairs_with_date_range = pd.read_csv(input_directory + "/cochanges.csv")
-    co_changed_pairs_with_date_range['parsedStartDate'] = co_changed_pairs_with_date_range['startdate'].map(lambda x: datetime.datetime.strptime(x, '%d-%m-%Y'))
-    co_changed_pairs_with_date_range['parsedEndDate'] = co_changed_pairs_with_date_range['enddate'].map(lambda x: datetime.datetime.strptime(x, '%d-%m-%Y'))
-    return co_changed_pairs_with_date_range
 
 
 # Returns all co-changes that have a matching smell. Note: can contain duplicates.

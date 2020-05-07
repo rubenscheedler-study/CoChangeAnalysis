@@ -43,7 +43,7 @@ def hyper_param_analysis():
 
 #threshold_distribution()
 
-
+"""
 warps, changedFiles = perform_dtw()
 
 # Map changed files to class.java
@@ -79,4 +79,4 @@ all_pairs_mba.to_csv(output_directory + "/file_pairs_mba.csv")
 
 """
 run_exploration()
-"""
+
