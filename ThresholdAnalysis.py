@@ -1,21 +1,19 @@
 import csv
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
 from config import input_directory
 
 
 def threshold_distribution():
-    # read csv
-    with open(input_directory + '/cochanges.csv', newline='') as csv_file:
-        thresholdData = list(csv.reader(csv_file))[1:]
-    thresholds = list(map(lambda x: int(x), list(zip(*thresholdData))[2]))
+    thresholdData = pd.read_csv(input_directory + "/cochanges.csv")
     # get highest threshold
-    max_threshold = max(thresholds)
-    thresholds = sorted(thresholds)
-    plt.hist(thresholds, bins=range(0, max_threshold + 1))
-    plt.title("Cochange match count distribution")
-    plt.show()
+    max_threshold = max(thresholdData['threshold'])
+    thresholds = sorted(thresholdData['threshold'])
+    #plt.hist(thresholds, bins=range(0, max_threshold + 1))
+    #plt.title("Cochange match count distribution")
+    #plt.show()
     print("----threshold results----")
     print("quartile values:")
     firstquartile = np.percentile(thresholds, 25)
