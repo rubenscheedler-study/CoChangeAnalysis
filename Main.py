@@ -5,18 +5,19 @@ import pandas as pd
 import config
 
 # Constants
+from ClassFOAnalysis import ClassFOAnalysis
 from CommitsPerCommitDay import commits_per_commitday
 from Commits_over_lifetime import commits_over_lifetime
 from Exploration import run_exploration
 from FilesPerCommit import files_per_commit_information
-from MBA import perform_mba
+#from MBA import perform_mba
 from TimeBetweenCommits import time_between_commits
 from ThresholdAnalysis import threshold_distribution
 from Utility import get_class_from_package
 from config import output_directory
-from dynamic_Warp import perform_dtw
-from helper_scripts.Commit_date_helper import add_file_dates
-from helper_scripts.output_helper import filter_duplicate_file_pairs, generate_all_pairs
+#from dynamic_Warp import perform_dtw
+#from helper_scripts.Commit_date_helper import add_file_dates
+#from helper_scripts.output_helper import filter_duplicate_file_pairs, generate_all_pairs
 
 
 def hyper_param_analysis():
@@ -41,7 +42,7 @@ def hyper_param_analysis():
 
 #hyper_param_analysis()
 
-#threshold_distribution()
+threshold_distribution()
 
 """
 warps, changedFiles = perform_dtw()
@@ -78,5 +79,7 @@ rules_with_dates.to_csv(output_directory + "/mba.csv")
 all_pairs_mba.to_csv(output_directory + "/file_pairs_mba.csv")
 
 """
-run_exploration()
+#run_exploration()
 
+#a = ClassFOAnalysis()
+#a.execute()

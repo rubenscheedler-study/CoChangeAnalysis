@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from FOAnalysis import find_smelly_pairs_with_date
+from ClassFOAnalysis import find_smelly_pairs_with_date
 from config import analysis_start_date, analysis_end_date
 
 
