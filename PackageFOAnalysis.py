@@ -17,6 +17,7 @@ class PackageFOAnalysis:
     # Executes a range of relevant tests on class-level co-changes and smells.
     def execute(self):
         smelling_co_changing_pairs, all_smelly_pairs, co_changed_pairs, all_pairs = self.get_pairs()
+        print("package analysis results:")
         self.analyzer.analyze_results(smelling_co_changing_pairs, all_smelly_pairs, co_changed_pairs, all_pairs)
 
     # Calculates the contingency table values for package level pairs
