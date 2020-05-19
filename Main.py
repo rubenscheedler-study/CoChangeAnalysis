@@ -83,7 +83,7 @@ all_pairs_mba.to_csv(output_directory + "/file_pairs_mba.csv")
 #run_exploration()
 
 cfa = ClassFOAnalysis()
-cfa.execute()
+#cfa.execute()
 
 pfa = PackageFOAnalysis()
 pfa.execute()
