@@ -29,7 +29,7 @@ def print_overlap_dtw():
     dtw_all_pairs = order_file1_and_file2(find_pairs(output_directory + "/file_pairs_dtw.csv"))
     dtw_cc_pairs = order_file1_and_file2(find_pairs_with_date_range(output_directory + "/dtw.csv", '%Y-%m-%d %H:%M:%S'))
     # Get raw smell pairs
-    smell_pairs_with_date = order_file1_and_file2(get_project_class_smells_in_range(False))
+    smell_pairs_with_date = order_file1_and_file2(get_project_class_smells_in_range(True))
     smelly_pairs = set(smell_pairs_with_date.apply(lambda row: (row.file1, row.file2), axis=1))
     dtw_as_tuple = set(dtw_all_pairs.apply(lambda row: (row.file1, row.file2), axis=1))
 
@@ -43,7 +43,7 @@ def print_overlap_dtw():
     print("All smell pairs:\t\t", len(smelly_pairs))
     print("Relevant smell pairs:\t\t", len(relevant_smelly_pairs))
     print("Overlapping pairs:\t\t", len(overlapping_pairs))
-    print("Overlap ratio:\t\t", 100 * (len(overlapping_pairs) / len(relevant_smelly_pairs)))
+    print("Overlap ratio:\t\t", 0 if len(relevant_smelly_pairs) == 0 else 100 * (len(overlapping_pairs) / len(relevant_smelly_pairs)))
     print("overlapping pairs:")
     for pair in overlapping_pairs:
         print(pair[0], ", ", pair[1])
@@ -53,10 +53,10 @@ def print_overlap_dtw():
 def print_overlap_mba():
     print("--- Overlap MBA co-changes and smells: ---")
     mba_all_pairs = order_file1_and_file2(find_pairs(output_directory + "/file_pairs_mba.csv"))
-    mba_cc_pairs = order_file1_and_file2(find_pairs_with_date_range(output_directory + "/mba.csv", '%Y-%m-%d'))
+    mba_cc_pairs = order_file1_and_file2(find_pairs_with_date_range(output_directory + "/mba.csv", '%Y-%m-%d %H:%M:%S'))
 
     # Get raw smell pairs
-    smell_pairs_with_date = order_file1_and_file2(get_project_class_smells_in_range(False))
+    smell_pairs_with_date = order_file1_and_file2(get_project_class_smells_in_range(True))
     smelly_pairs = set(smell_pairs_with_date.apply(lambda row: (row.file1, row.file2), axis=1))
     mba_as_tuple = set(mba_all_pairs.apply(lambda row: (row.file1, row.file2), axis=1))
 
@@ -70,7 +70,7 @@ def print_overlap_mba():
     print("All smell pairs:\t\t", len(smelly_pairs))
     print("Relevant smell pairs:\t\t", len(relevant_smelly_pairs))
     print("Overlapping pairs:\t\t", len(overlapping_pairs))
-    print("Overlap ratio:\t\t", 100 * (len(overlapping_pairs) / len(relevant_smelly_pairs)))
+    print("Overlap ratio:\t\t", 0 if len(relevant_smelly_pairs) == 0 else 100 * (len(overlapping_pairs) / len(relevant_smelly_pairs)))
     print("overlapping pairs:")
     for pair in overlapping_pairs:
         print(pair[0], ", ", pair[1])
@@ -88,7 +88,7 @@ def print_overlap_fo():
     print("All smell pairs:\t\t", len(smelly_pairs))
     print("Relevant smell pairs:\t\t", len(relevant_smelly_pairs))
     print("Overlapping pairs:\t\t", len(smelling_co_changing_pairs))
-    print("Overlap ratio:\t\t", 100 * (len(smelling_co_changing_pairs) / len(relevant_smelly_pairs)))
+    print("Overlap ratio:\t\t", 0 if len(relevant_smelly_pairs) == 0 else 100 * (len(smelling_co_changing_pairs) / len(relevant_smelly_pairs)))
     print("overlapping pairs:")
     for pair in smelling_co_changing_pairs:
         print(pair[0], ", ", pair[1])

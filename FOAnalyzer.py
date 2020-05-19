@@ -84,6 +84,9 @@ class FOAnalyzer:
     @staticmethod
     def get_co_changed_smelly_pairs(co_change_df, smell_df, level='file'):
         co_changes_smells = co_change_df.merge(smell_df, how='inner', left_on=[level+'1', level+'2'], right_on=[level+'1', level+'2'])
-        matching_co_changes = co_changes_smells[co_changes_smells.apply(lambda row: row['parsedStartDate'] <= row['parsedVersionDate'] <= row['parsedEndDate'], axis=1)]
-        return matching_co_changes
+        if co_changes_smells.empty:
+            return co_changes_smells # Empty df
+        else:
+            matching_co_changes = co_changes_smells[co_changes_smells.apply(lambda row: row['parsedStartDate'] <= row['parsedVersionDate'] <= row['parsedEndDate'], axis=1)]
+            return matching_co_changes
 

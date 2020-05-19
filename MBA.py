@@ -1,10 +1,16 @@
+import os
+
 from mlxtend.frequent_patterns import apriori
 from mlxtend.frequent_patterns import association_rules
 import pandas as pd
 from mlxtend.preprocessing import TransactionEncoder
 import numpy as np
 
+from Utility import get_class_from_package
+from config import output_directory
+from helper_scripts.Commit_date_helper import add_file_dates
 from helper_scripts.components_helper import get_components
+from helper_scripts.output_helper import filter_duplicate_file_pairs, generate_all_pairs
 
 
 def perform_mba():
@@ -62,3 +68,27 @@ def generate_basket_rules(df):
     print(firstquartile, median, thirdquartile)
     rules = association_rules(frequent_itemsets, metric="confidence", min_threshold=0.8)
     return rules
+
+
+def generate_mba_analysis_files():
+    # Create the directory
+    if not os.path.exists(output_directory):
+        os.makedirs(output_directory)
+
+    rules, changedFiles = perform_mba()
+    # Map changed files to class.java
+    changedFiles = list(map(get_class_from_package, changedFiles))
+
+    rules = filter_duplicate_file_pairs(rules)
+
+    all_pairs_mba = generate_all_pairs(changedFiles)
+    rules_with_dates = add_file_dates(rules)
+
+    # Map warps to class.java
+    rules_with_dates['file1'] = rules_with_dates['file1'].apply(lambda f: get_class_from_package(f, True))
+    rules_with_dates['file2'] = rules_with_dates['file2'].apply(lambda f: get_class_from_package(f, True))
+
+    rules_with_dates.to_csv(output_directory + "/mba.csv")
+    all_pairs_mba.to_csv(output_directory + "/file_pairs_mba.csv")
+
+
