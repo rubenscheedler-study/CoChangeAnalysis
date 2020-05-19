@@ -8,6 +8,7 @@ from FOAnalyzer import FOAnalyzer
 from Utility import order_package1_and_package2, find_pairs_with_date_range, to_unique_package_tuples, get_project_package_smells_in_range
 from config import input_directory
 
+
 class PackageFOAnalysis:
 
     def __init__(self):
@@ -22,10 +23,15 @@ class PackageFOAnalysis:
     def get_pairs(self):
         # All pairs formed from all files changed in the relevant time frame.
         all_pairs_df = pd.read_csv(input_directory + "/file_pairs.csv")
+        all_pairs_df.package1 = all_pairs_df.package1.apply(str)
+        all_pairs_df.package2 = all_pairs_df.package2.apply(str)
         all_pairs_df = order_package1_and_package2(all_pairs_df)
 
         # All co-changed pairs with corresponding date range.
-        co_changed_pairs_with_date_range = order_package1_and_package2(find_pairs_with_date_range(input_directory + "/cochanges.csv", '%d-%m-%Y'))
+        co_changes_df = find_pairs_with_date_range(input_directory + "/cochanges.csv", '%d-%m-%Y')
+        co_changes_df.package1 = co_changes_df.package1.apply(str)
+        co_changes_df.package2 = co_changes_df.package2.apply(str)
+        co_changed_pairs_with_date_range = order_package1_and_package2(co_changes_df)
         co_changed_pairs = to_unique_package_tuples(co_changed_pairs_with_date_range)
 
         # All smelly pairs of the whole analyzed history of the project.

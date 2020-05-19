@@ -14,7 +14,7 @@ def read_filename_pairs(path_to_csv):
     return pd.DataFrame(list(map(lambda pair: (map_path_to_filename(pair[0]), map_path_to_filename(pair[1])), full_path_pairs)), columns=['file1', 'file2'])
 
 def find_pairs_with_date_range(path_to_csv, dateformat):
-    co_changed_pairs_with_date_range = pd.read_csv(path_to_csv, nrows=1000) #TODO nrows eruit
+    co_changed_pairs_with_date_range = pd.read_csv(path_to_csv)
     co_changed_pairs_with_date_range['parsedStartDate'] = co_changed_pairs_with_date_range['startdate'].map(lambda x: datetime.datetime.strptime(x, dateformat))
     co_changed_pairs_with_date_range['parsedEndDate'] = co_changed_pairs_with_date_range['enddate'].map(lambda x: datetime.datetime.strptime(x, dateformat))
     return co_changed_pairs_with_date_range
@@ -106,7 +106,7 @@ def explode_row_into_package_pairs(row):
     package_pairs_with_date = list(map(lambda fp: fp + (row.parsedVersionDate,), package_pairs))
 
     # Define the dataframe to return
-    return pd.DataFrame(package_pairs_with_date, columns=['package1', 'package1', 'parsedVersionDate'])
+    return pd.DataFrame(package_pairs_with_date, columns=['package1', 'package2', 'parsedVersionDate'])
 
 
 # Removes the [...] and splits the inner content on comma to get the list of packages.

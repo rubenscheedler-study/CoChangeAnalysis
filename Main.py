@@ -11,6 +11,7 @@ from Commits_over_lifetime import commits_over_lifetime
 from Exploration import run_exploration
 from FilesPerCommit import files_per_commit_information
 #from MBA import perform_mba
+from PackageFOAnalysis import PackageFOAnalysis
 from TimeBetweenCommits import time_between_commits
 from ThresholdAnalysis import threshold_distribution
 from Utility import get_class_from_package
@@ -42,7 +43,7 @@ def hyper_param_analysis():
 
 #hyper_param_analysis()
 
-threshold_distribution()
+#threshold_distribution()
 
 """
 warps, changedFiles = perform_dtw()
@@ -81,5 +82,8 @@ all_pairs_mba.to_csv(output_directory + "/file_pairs_mba.csv")
 """
 #run_exploration()
 
-#a = ClassFOAnalysis()
-#a.execute()
+cfa = ClassFOAnalysis()
+cfa.execute()
+
+pfa = PackageFOAnalysis()
+pfa.execute()

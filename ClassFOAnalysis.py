@@ -21,9 +21,9 @@ class ClassFOAnalysis:
     # Calculates the contingency table values for class level file pairs
     def get_pairs(self):
         # All pairs formed from all files changed in the relevant time frame.
-        all_pairs_df = pd.read_csv(input_directory + "/file_pairs.csv", nrows=1000) #TODO remove nrows
-        all_pairs_df['file1'] = [get_class_from_package(s, True) for s in all_pairs_df["file1"].values]
-        all_pairs_df['file2'] = [get_class_from_package(s, True) for s in all_pairs_df["file2"].values]
+        all_pairs_df = pd.read_csv(input_directory + "/file_pairs.csv")
+        #all_pairs_df['file1'] = [get_class_from_package(s, True) for s in all_pairs_df["file1"].values]
+        #all_pairs_df['file2'] = [get_class_from_package(s, True) for s in all_pairs_df["file2"].values]
         all_pairs_df = order_file1_and_file2(all_pairs_df)
 
         # All co-changed pairs with corresponding date range.
