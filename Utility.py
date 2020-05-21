@@ -39,6 +39,9 @@ def get_project_class_smells_in_range(ignore_inner_classes=True):
     # filter rows on date range
     smells = smells[smells['parsedVersionDate'] <= analysis_end_date]
     smells = smells[analysis_start_date <= smells['parsedVersionDate']]
+
+    # these are currently the only two files relevant
+    smells = smells[['parsedVersionDate', 'affectedElements']]
     # Generate unique 2-sized combinations for each smell file list.
     # These are the smelly pairs since they share a code smell.
     ### non_unique_pairs = list(chain(*map(lambda files: combinations(files, 2), map(parse_affected_elements, smells_affected_elements))))
@@ -46,7 +49,7 @@ def get_project_class_smells_in_range(ignore_inner_classes=True):
     ### smelly_pairs = set(non_unique_pairs)
     smell_rows = reduce(
         lambda a, b: pd.concat([a, b], ignore_index=True),  # Concat all smell sub-dfs into one big one.
-        smells.swifter.apply(explode_row_into_class_pairs, axis=1)
+        smells.apply(explode_row_into_class_pairs, axis=1)
     )
     # Map package.class to class
     smell_rows['file1'] = smell_rows['file1'].apply(lambda s: get_class_from_package(s, ignore_inner_classes))
@@ -90,6 +93,9 @@ def get_project_package_smells_in_range():
     # filter rows on date range
     smells = smells[smells['parsedVersionDate'] <= analysis_end_date]
     smells = smells[analysis_start_date <= smells['parsedVersionDate']]
+
+    # these are currently the only two files relevant
+    smells = smells[['parsedVersionDate', 'affectedElements']]
 
     smell_rows = reduce(
         lambda a, b: pd.concat([a, b], ignore_index=True),  # Concat all smell sub-dfs into one big one.
