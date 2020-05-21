@@ -55,14 +55,14 @@ def hyper_param_analysis():
 cfa = ClassFOAnalysis()
 cfa.execute()
 '''
-#pfa = PackageFOAnalysis()
-#pfa.execute()
+pfa = PackageFOAnalysis()
+pfa.execute()
 
 #comfa = CombinedFOAnalysis()
 #comfa.execute()
 
-start = time.time()
-pcs = get_project_class_smells_in_range()
-end = time.time()
-print(end - start, " seconds elapsed")
+#start = time.time()
+#pcs = get_project_class_smells_in_range()
+#end = time.time()
+#print(end - start, " seconds elapsed")
 
