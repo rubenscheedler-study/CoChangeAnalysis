@@ -6,13 +6,15 @@ import config
 
 # Constants
 from ClassFOAnalysis import ClassFOAnalysis
+from CombinedFOAnalysis import CombinedFOAnalysis
+from PackageFOAnalysis import PackageFOAnalysis
 from CommitsPerCommitDay import commits_per_commitday
 from Commits_over_lifetime import commits_over_lifetime
 from Exploration import run_exploration
 from FilesPerCommit import files_per_commit_information
-from MBA import generate_mba_analysis_files
+#from MBA import generate_mba_analysis_files
 from TimeBetweenCommits import time_between_commits
-from dynamic_Warp import generate_dtw_analysis_files
+#from dynamic_Warp import generate_dtw_analysis_files
 
 
 def hyper_param_analysis():
@@ -35,22 +37,25 @@ def hyper_param_analysis():
     # Get the number of commits per day on which there were commits
     commits_per_commitday(repo, config.branch)
 
-# hyper_param_analysis()
+#hyper_param_analysis()
 
 
 # threshold_distribution()
 
 
-generate_dtw_analysis_files()
+# generate_dtw_analysis_files()
 
 
-generate_mba_analysis_files()
+# generate_mba_analysis_files()
 
 
-run_exploration()
+# run_exploration()
 
-# cfa = ClassFOAnalysis()
-# cfa.execute()
+cfa = ClassFOAnalysis()
+cfa.execute()
 
-# pfa = PackageFOAnalysis()
-# pfa.execute()
+pfa = PackageFOAnalysis()
+pfa.execute()
+
+comfa = CombinedFOAnalysis()
+comfa.execute()
