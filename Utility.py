@@ -2,6 +2,7 @@ import datetime
 from functools import reduce
 from itertools import combinations
 import numpy as np
+import swifter
 
 import pandas as pd
 
@@ -36,8 +37,8 @@ def get_project_class_smells_in_range(ignore_inner_classes=True):
 
     smells['parsedVersionDate'] = pd.to_datetime(smells['versionDate'], format='%d-%m-%Y')
     # filter rows on date range
-    smells = smells[
-        smells.apply(lambda row: analysis_start_date <= row['parsedVersionDate'] <= analysis_end_date, axis=1)]
+    smells = smells[smells['parsedVersionDate'] <= analysis_end_date]
+    smells = smells[analysis_start_date <= smells['parsedVersionDate']]
     # Generate unique 2-sized combinations for each smell file list.
     # These are the smelly pairs since they share a code smell.
     ### non_unique_pairs = list(chain(*map(lambda files: combinations(files, 2), map(parse_affected_elements, smells_affected_elements))))
@@ -45,7 +46,7 @@ def get_project_class_smells_in_range(ignore_inner_classes=True):
     ### smelly_pairs = set(non_unique_pairs)
     smell_rows = reduce(
         lambda a, b: pd.concat([a, b], ignore_index=True),  # Concat all smell sub-dfs into one big one.
-        smells.apply(explode_row_into_class_pairs, axis=1)
+        smells.swifter.apply(explode_row_into_class_pairs, axis=1)
     )
     # Map package.class to class
     smell_rows['file1'] = smell_rows['file1'].apply(lambda s: get_class_from_package(s, ignore_inner_classes))
@@ -87,12 +88,12 @@ def get_project_package_smells_in_range():
     # Add a column for the parsed version date.
     smells['parsedVersionDate'] = pd.to_datetime(smells['versionDate'], format='%d-%m-%Y')
     # filter rows on date range
-    smells = smells[
-        smells.apply(lambda row: analysis_start_date <= row['parsedVersionDate'] <= analysis_end_date, axis=1)]
+    smells = smells[smells['parsedVersionDate'] <= analysis_end_date]
+    smells = smells[analysis_start_date <= smells['parsedVersionDate']]
 
     smell_rows = reduce(
         lambda a, b: pd.concat([a, b], ignore_index=True),  # Concat all smell sub-dfs into one big one.
-        smells.apply(explode_row_into_package_pairs, axis=1)
+        smells.swifter.apply(explode_row_into_package_pairs, axis=1)
     )
 
     return smell_rows
