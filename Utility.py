@@ -30,7 +30,7 @@ def find_pairs(path_to_csv):
 # Looks at {input}/{project}/smell-characteristics-consecOnly.csv
 # Reads all pairs. Filters duplicates and filters out pairs outside the date range set in config.
 def get_project_class_smells_in_range(ignore_inner_classes=True):
-    smells = pd.read_csv(input_directory + "/smell-characteristics-consecOnly.csv", nrows=10000)
+    smells = pd.read_csv(input_directory + "/smell-characteristics-consecOnly.csv")
     smells = smells[smells.affectedComponentType == "class"]
     # Add a column for the parsed version date.
 
@@ -39,17 +39,26 @@ def get_project_class_smells_in_range(ignore_inner_classes=True):
     smells = smells[smells['parsedVersionDate'] <= analysis_end_date]
     smells = smells[analysis_start_date <= smells['parsedVersionDate']]
 
-    # these are currently the only two files relevant
-    smells = smells[['parsedVersionDate', 'affectedElements']]
+    smells = smells[smells['affectedElements'] != '[]']
+    smells['affectedElements'] = smells['affectedElements'].str[1:-1]
+
     # Generate unique 2-sized combinations for each smell file list.
     # These are the smelly pairs since they share a code smell.
     ### non_unique_pairs = list(chain(*map(lambda files: combinations(files, 2), map(parse_affected_elements, smells_affected_elements))))
     # For now we filter duplicate incidents of pairs being contained in smells.
     ### smelly_pairs = set(non_unique_pairs)
+    dfs = []  # (file1, file2, date)
+
+    for index, row in smells.iterrows():
+        dfs.append(explode_row_into_class_pairs(row))
+
+    smell_rows = pd.concat(dfs)
+    """
     smell_rows = reduce(
         lambda a, b: pd.concat([a, b], ignore_index=True),  # Concat all smell sub-dfs into one big one.
         smells.apply(explode_row_into_class_pairs, axis=1)
     )
+    """
     # Map package.class to class
     smell_rows['file1'] = smell_rows['file1'].apply(get_class_from_package)
     smell_rows['file2'] = smell_rows['file2'].apply(get_class_from_package)
@@ -70,11 +79,7 @@ def explode_row_into_class_pairs(row):
 
 # Parses a string of the form [package.class$innerclass, package.class$innerclass, ...] to a list
 def parse_affected_classes(affected_elements_list_string):
-    return list(
-        map(lambda p: p.split(".")[-1],  # map every package-file a.b.c to its file: c (last part)
-            affected_elements_list_string[1:-1].split(", ")  # split the list into its distinct files
-            )
-    )
+    return [i.split('.')[-1] for i in affected_elements_list_string.split(', ')]
 
 #
 # Code for package smells
@@ -91,9 +96,6 @@ def get_project_package_smells_in_range():
     # filter rows on date range
     smells = smells[smells['parsedVersionDate'] <= analysis_end_date]
     smells = smells[analysis_start_date <= smells['parsedVersionDate']]
-
-    # these are currently the only two files relevant
-    smells = smells[['parsedVersionDate', 'affectedElements']]
 
     smell_rows = reduce(
         lambda a, b: pd.concat([a, b], ignore_index=True),  # Concat all smell sub-dfs into one big one.
