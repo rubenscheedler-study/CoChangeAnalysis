@@ -2,7 +2,7 @@ import datetime
 from functools import reduce
 from itertools import combinations
 import numpy as np
-
+import json
 import pandas as pd
 
 from config import input_directory, analysis_start_date, analysis_end_date
@@ -30,7 +30,7 @@ def find_pairs(path_to_csv):
 # Looks at {input}/{project}/smell-characteristics-consecOnly.csv
 # Reads all pairs. Filters duplicates and filters out pairs outside the date range set in config.
 def get_project_class_smells_in_range(ignore_inner_classes=True):
-    smells = pd.read_csv(input_directory + "/smell-characteristics-consecOnly.csv")
+    smells = pd.read_csv(input_directory + "/smell-characteristics-consecOnly.csv", nrows=10000)
     smells = smells[smells.affectedComponentType == "class"]
     # Add a column for the parsed version date.
 
@@ -48,8 +48,8 @@ def get_project_class_smells_in_range(ignore_inner_classes=True):
         smells.apply(explode_row_into_class_pairs, axis=1)
     )
     # Map package.class to class
-    smell_rows['file1'] = smell_rows['file1'].apply(lambda s: get_class_from_package(s, ignore_inner_classes))
-    smell_rows['file2'] = smell_rows['file2'].apply(lambda s: get_class_from_package(s, ignore_inner_classes))
+    smell_rows['file1'] = smell_rows['file1'].apply(get_class_from_package)
+    smell_rows['file2'] = smell_rows['file2'].apply(get_class_from_package)
 
     return smell_rows
 
@@ -60,10 +60,9 @@ def explode_row_into_class_pairs(row):
     affected_files = parse_affected_classes(row.affectedElements)
     # Create a new row for each combination of two distinct files.
     file_pairs = combinations(affected_files, 2)
-    file_pairs_with_date = list(map(lambda fp: fp + (row.parsedVersionDate,), file_pairs))
-
-    # Define the dataframe to return
-    return pd.DataFrame(file_pairs_with_date, columns=['file1', 'file2', 'parsedVersionDate'])
+    df = pd.DataFrame(file_pairs, columns=['file1', 'file2'])
+    df.assign(parsedVersionDate=row.parsedVersionDate)
+    return df
 
 
 # Parses a string of the form [package.class$innerclass, package.class$innerclass, ...] to a list

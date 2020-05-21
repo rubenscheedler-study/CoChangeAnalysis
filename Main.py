@@ -1,4 +1,4 @@
-
+import time
 
 from git import Repo
 import pandas as pd
@@ -15,6 +15,7 @@ from FilesPerCommit import files_per_commit_information
 #from MBA import generate_mba_analysis_files
 from TimeBetweenCommits import time_between_commits
 #from dynamic_Warp import generate_dtw_analysis_files
+from Utility import get_project_class_smells_in_range
 
 
 def hyper_param_analysis():
@@ -51,11 +52,16 @@ def hyper_param_analysis():
 
 # run_exploration()
 
-cfa = ClassFOAnalysis()
-cfa.execute()
+#cfa = ClassFOAnalysis()
+#cfa.execute()
 
-pfa = PackageFOAnalysis()
-pfa.execute()
+#pfa = PackageFOAnalysis()
+#pfa.execute()
 
-comfa = CombinedFOAnalysis()
-comfa.execute()
+#comfa = CombinedFOAnalysis()
+#comfa.execute()
+
+start = time.time()
+pcs = get_project_class_smells_in_range()
+end = time.time()
+print(end - start, " seconds elapsed")
