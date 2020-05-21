@@ -85,7 +85,7 @@ def get_project_package_smells_in_range():
     smells = pd.read_csv(input_directory + "/smell-characteristics-consecOnly.csv")
     smells = smells[smells.affectedComponentType == "package"]
     # Add a column for the parsed version date.
-    smells['parsedVersionDate'] = smells['versionDate'].map(lambda x: datetime.datetime.strptime(x, '%d-%m-%Y'))
+    smells['parsedVersionDate'] = pd.to_datetime(smells['versionDate'], format='%d-%m-%Y')
     # filter rows on date range
     smells = smells[
         smells.apply(lambda row: analysis_start_date <= row['parsedVersionDate'] <= analysis_end_date, axis=1)]

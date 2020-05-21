@@ -11,6 +11,7 @@ from Commits_over_lifetime import commits_over_lifetime
 from Exploration import run_exploration
 from FilesPerCommit import files_per_commit_information
 from MBA import generate_mba_analysis_files
+from PackageFOAnalysis import PackageFOAnalysis
 from TimeBetweenCommits import time_between_commits
 from dynamic_Warp import generate_dtw_analysis_files
 
@@ -49,8 +50,11 @@ generate_mba_analysis_files()
 
 run_exploration()
 
-# cfa = ClassFOAnalysis()
-# cfa.execute()
 
-# pfa = PackageFOAnalysis()
-# pfa.execute()
+#run_exploration()
+
+cfa = ClassFOAnalysis()
+#cfa.execute()
+
+pfa = PackageFOAnalysis()
+pfa.execute()
