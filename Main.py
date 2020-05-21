@@ -52,11 +52,11 @@ def hyper_param_analysis():
 
 # run_exploration()
 
-cfa = ClassFOAnalysis()
-cfa.execute()
+#cfa = ClassFOAnalysis()
+#cfa.execute()
 
-#pfa = PackageFOAnalysis()
-#pfa.execute()
+pfa = PackageFOAnalysis()
+pfa.execute()
 
 #comfa = CombinedFOAnalysis()
 #comfa.execute()
