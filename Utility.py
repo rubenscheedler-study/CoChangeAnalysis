@@ -15,8 +15,8 @@ def read_filename_pairs(path_to_csv):
 
 def find_pairs_with_date_range(path_to_csv, dateformat):
     co_changed_pairs_with_date_range = pd.read_csv(path_to_csv)
-    co_changed_pairs_with_date_range['parsedStartDate'] = co_changed_pairs_with_date_range['startdate'].map(lambda x: datetime.datetime.strptime(x, dateformat))
-    co_changed_pairs_with_date_range['parsedEndDate'] = co_changed_pairs_with_date_range['enddate'].map(lambda x: datetime.datetime.strptime(x, dateformat))
+    co_changed_pairs_with_date_range['parsedStartDate'] = pd.to_datetime(co_changed_pairs_with_date_range['startdate'], format= dateformat)
+    co_changed_pairs_with_date_range['parsedEndDate'] = pd.to_datetime(co_changed_pairs_with_date_range['enddate'], format= dateformat)
     return co_changed_pairs_with_date_range
 
 def find_pairs(path_to_csv):
@@ -33,7 +33,8 @@ def get_project_class_smells_in_range(ignore_inner_classes=True):
     smells = pd.read_csv(input_directory + "/smell-characteristics-consecOnly.csv")
     smells = smells[smells.affectedComponentType == "class"]
     # Add a column for the parsed version date.
-    smells['parsedVersionDate'] = smells['versionDate'].map(lambda x: datetime.datetime.strptime(x, '%d-%m-%Y'))
+
+    smells['parsedVersionDate'] = pd.to_datetime(smells['versionDate'], format='%d-%m-%Y')
     # filter rows on date range
     smells = smells[
         smells.apply(lambda row: analysis_start_date <= row['parsedVersionDate'] <= analysis_end_date, axis=1)]

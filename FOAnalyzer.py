@@ -78,6 +78,8 @@ class FOAnalyzer:
     # Calculates the odds ratio on the passed contingency table values.
     @staticmethod
     def odds_ratio(non_smelling_non_co_changing_pairs, non_smelling_co_changing_pairs, smelling_non_co_changing_pairs, smelling_co_changing_pairs):
+        if non_smelling_co_changing_pairs*smelling_non_co_changing_pairs == 0:
+            return 0
         return (non_smelling_non_co_changing_pairs*smelling_co_changing_pairs)/(non_smelling_co_changing_pairs*smelling_non_co_changing_pairs)
 
     # Returns all co-changes that have a matching smell. Note: can contain duplicates.
