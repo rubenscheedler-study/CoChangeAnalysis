@@ -30,7 +30,7 @@ def find_pairs(path_to_csv):
 # Looks at {input}/{project}/smell-characteristics-consecOnly.csv
 # Reads all pairs. Filters duplicates and filters out pairs outside the date range set in config.
 def get_project_class_smells_in_range(ignore_inner_classes=True):
-    smells = pd.read_csv(input_directory + "/smell-characteristics-consecOnly.csv", nrows=10000)
+    smells = pd.read_csv(input_directory + "/smell-characteristics-consecOnly.csv")
     smells = smells[smells.affectedComponentType == "class"]
 
     #todo: this needs to be a function, as it is duplicated with the package version
@@ -51,18 +51,17 @@ def get_project_class_smells_in_range(ignore_inner_classes=True):
     smells['affectedElementsList'] = [[x.split('.')[-1] for x in i] for i in smells['affectedElements'].str.split(', ')]
     # generate all combinations of affected files from that list
     smells['affectedElementCombinations'] = [list(combinations(i, 2)) for i in smells['affectedElementsList']]
+    # drop the columns we dont need
+    smells = smells[['affectedElementCombinations', 'parsedVersionDate']]
     # explode the list of combinations into multiple rows
     smells = smells.explode('affectedElementCombinations')
     # split the combination tuples into two columns
     smells[['file1', 'file2']] = pd.DataFrame(smells['affectedElementCombinations'].tolist(), index=smells.index)
-    # drop the columns we dont need
-    smell_rows = smells[['file1', 'file2', 'parsedVersionDate']]
     # The file can contain smells affecting just one file, which ends up resolving to nan. Luckily, they are not relevant so we filter them.
-    smell_rows = smell_rows.dropna()
-
+    smell_rows = smells.dropna()
     # Map package.class to class
-    smell_rows['file1'] = smell_rows['file1'].apply(get_class_from_package)
-    smell_rows['file2'] = smell_rows['file2'].apply(get_class_from_package)
+    smell_rows['filea'] = smell_rows['file1'].apply(get_class_from_package)
+    smell_rows['filea'] = smell_rows['file2'].apply(get_class_from_package)
 
     return smell_rows
 
@@ -91,16 +90,31 @@ def parse_affected_classes(affected_elements_list_string):
 def get_project_package_smells_in_range():
     smells = pd.read_csv(input_directory + "/smell-characteristics-consecOnly.csv")
     smells = smells[smells.affectedComponentType == "package"]
+
     # Add a column for the parsed version date.
     smells['parsedVersionDate'] = pd.to_datetime(smells['versionDate'], format='%d-%m-%Y')
     # filter rows on date range
     smells = smells[smells['parsedVersionDate'] <= analysis_end_date]
     smells = smells[analysis_start_date <= smells['parsedVersionDate']]
 
-    smell_rows = reduce(
-        lambda a, b: pd.concat([a, b], ignore_index=True),  # Concat all smell sub-dfs into one big one.
-        smells.apply(explode_row_into_package_pairs, axis=1)
-    )
+    smells = smells[smells['affectedElements'] != '[]']
+    smells['affectedElements'] = smells['affectedElements'].str[1:-1]
+
+    # Generate unique 2-sized combinations for each smell file list.
+    # These are the smelly pairs since they share a code smell.
+
+    # split into a list (,) and strip the package from each file in that list (.)
+    smells['affectedPackagesList'] = smells['affectedElements'].str.split(', ')
+    # generate all combinations of affected files from that list
+    smells['affectedPackageCombinations'] = [list(combinations(i, 2)) for i in smells['affectedPackagesList']]
+    # drop the columns we dont need
+    smells = smells[['affectedPackageCombinations', 'parsedVersionDate']]
+    # explode the list of combinations into multiple rows
+    smells = smells.explode('affectedPackageCombinations')
+    # split the combination tuples into two columns
+    smells[['package1', 'package2']] = pd.DataFrame(smells['affectedPackageCombinations'].tolist(), index=smells.index)
+    # The file can contain smells affecting just one file, which ends up resolving to nan. Luckily, they are not relevant so we filter them.
+    smell_rows = smells.dropna()
 
     return smell_rows
 
