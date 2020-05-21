@@ -29,7 +29,7 @@ def find_pairs(path_to_csv):
 
 # Looks at {input}/{project}/smell-characteristics-consecOnly.csv
 # Reads all pairs. Filters duplicates and filters out pairs outside the date range set in config.
-def get_project_class_smells_in_range(ignore_inner_classes=True):
+def get_project_class_smells_in_range():
     smells = pd.read_csv(input_directory + "/smell-characteristics-consecOnly.csv")
     smells = smells[smells.affectedComponentType == "class"]
 
@@ -60,8 +60,8 @@ def get_project_class_smells_in_range(ignore_inner_classes=True):
     # The file can contain smells affecting just one file, which ends up resolving to nan. Luckily, they are not relevant so we filter them.
     smell_rows = smells.dropna()
     # Map package.class to class
-    smell_rows['filea'] = smell_rows['file1'].apply(get_class_from_package)
-    smell_rows['filea'] = smell_rows['file2'].apply(get_class_from_package)
+    smell_rows['file1'] = smell_rows['file1'].apply(get_class_from_package)
+    smell_rows['file2'] = smell_rows['file2'].apply(get_class_from_package)
 
     return smell_rows
 
@@ -72,7 +72,7 @@ def explode_row_into_class_pairs(row):
     # Create a new row for each combination of two distinct files.
     file_pairs = combinations(row.affectedElementsList, 2)
     df = pd.DataFrame(file_pairs, columns=['file1', 'file2'])
-    df.assign(parsedVersionDate=row.parsedVersionDate)
+    df = df.assign(parsedVersionDate=row.parsedVersionDate)
     return df
 
 
@@ -125,15 +125,14 @@ def explode_row_into_package_pairs(row):
     affected_packages = parse_affected_packages(row.affectedElements)
     # Create a new row for each combination of two distinct packages.
     package_pairs = combinations(affected_packages, 2)
-    package_pairs_with_date = list(map(lambda fp: fp + (row.parsedVersionDate,), package_pairs))
-
-    # Define the dataframe to return
-    return pd.DataFrame(package_pairs_with_date, columns=['package1', 'package2', 'parsedVersionDate'])
+    df = pd.DataFrame(package_pairs, columns=['package1', 'package2'])
+    df = df.assign(parsedVersionDate=row.parsedVersionDate)
+    return df
 
 
 # Removes the [...] and splits the inner content on comma to get the list of packages.
 def parse_affected_packages(affected_elements_list_string):
-    return affected_elements_list_string[1:-1].split(", ")
+    return affected_elements_list_string.split(", ")
 
 
 def sort_tuple_elements(tuple_list):
