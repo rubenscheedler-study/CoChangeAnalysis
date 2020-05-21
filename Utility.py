@@ -2,7 +2,7 @@ import datetime
 from functools import reduce
 from itertools import combinations
 import numpy as np
-import json
+
 import pandas as pd
 
 from config import input_directory, analysis_start_date, analysis_end_date
@@ -36,8 +36,8 @@ def get_project_class_smells_in_range(ignore_inner_classes=True):
 
     smells['parsedVersionDate'] = pd.to_datetime(smells['versionDate'], format='%d-%m-%Y')
     # filter rows on date range
-    smells = smells[
-        smells.apply(lambda row: analysis_start_date <= row['parsedVersionDate'] <= analysis_end_date, axis=1)]
+    smells = smells[smells['parsedVersionDate'] <= analysis_end_date]
+    smells = smells[analysis_start_date <= smells['parsedVersionDate']]
     # Generate unique 2-sized combinations for each smell file list.
     # These are the smelly pairs since they share a code smell.
     ### non_unique_pairs = list(chain(*map(lambda files: combinations(files, 2), map(parse_affected_elements, smells_affected_elements))))
@@ -84,10 +84,10 @@ def get_project_package_smells_in_range():
     smells = pd.read_csv(input_directory + "/smell-characteristics-consecOnly.csv")
     smells = smells[smells.affectedComponentType == "package"]
     # Add a column for the parsed version date.
-    smells['parsedVersionDate'] = smells['versionDate'].map(lambda x: datetime.datetime.strptime(x, '%d-%m-%Y'))
+    smells['parsedVersionDate'] = pd.to_datetime(smells['versionDate'], format='%d-%m-%Y')
     # filter rows on date range
-    smells = smells[
-        smells.apply(lambda row: analysis_start_date <= row['parsedVersionDate'] <= analysis_end_date, axis=1)]
+    smells = smells[smells['parsedVersionDate'] <= analysis_end_date]
+    smells = smells[analysis_start_date <= smells['parsedVersionDate']]
 
     smell_rows = reduce(
         lambda a, b: pd.concat([a, b], ignore_index=True),  # Concat all smell sub-dfs into one big one.
