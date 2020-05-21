@@ -33,6 +33,9 @@ def find_pairs(path_to_csv):
 def get_project_class_smells_in_range():
     smells = pd.read_csv(input_directory + "/smell-characteristics-consecOnly.csv")
     smells = smells[smells.affectedComponentType == "class"]
+
+    #todo: this needs to be a function, as it is duplicated with the package version
+
     # Add a column for the parsed version date.
 
     smells['parsedVersionDate'] = pd.to_datetime(smells['versionDate'], format='%d-%m-%Y')
@@ -43,37 +46,34 @@ def get_project_class_smells_in_range():
     smells = smells[smells['affectedElements'] != '[]']
     smells['affectedElements'] = smells['affectedElements'].str[1:-1]
 
-    dfs = []  # (file1, file2, date)
+    # Generate unique 2-sized combinations for each smell file list.
+    # These are the smelly pairs since they share a code smell.
 
-    for index, row in smells.iterrows():
-        dfs.append(explode_row_into_class_pairs(row))
+    # split into a list (,) and strip the package from each file in that list (.)
+    smells['affectedElementsList'] = [[x.split('.')[-1] for x in i] for i in smells['affectedElements'].str.split(', ')]
+    # generate all combinations of affected files from that list
+    smells['affectedElementCombinations'] = [list(combinations(i, 2)) for i in smells['affectedElementsList']]
+    # explode the list of combinations into multiple rows
+    smells = smells.explode('affectedElementCombinations')
+    # split the combination tuples into two columns
+    smells[['file1', 'file2']] = pd.DataFrame(smells['affectedElementCombinations'].tolist(), index=smells.index)
+    # drop the columns we dont need
+    smell_rows = smells[['file1', 'file2', 'parsedVersionDate']]
+    # The file can contain smells affecting just one file, which ends up resolving to nan. Luckily, they are not relevant so we filter them.
+    smell_rows = smell_rows.dropna()
 
-    smell_rows = pd.concat(dfs, ignore_index=True)
+    # Map package.class to class
+    smell_rows['file1'] = smell_rows['file1'].apply(get_class_from_package)
+    smell_rows['file2'] = smell_rows['file2'].apply(get_class_from_package)
 
-    # Define a data frame that combines the sub-frames.
-    class_smell_chunks = None
-
-    chunks = [smell_rows.loc[i:i + 5000, ].copy() for i in range(0, smell_rows.shape[0], 5000)]
-    for chunk in chunks:
-        # Map package.class to class
-        chunk['file1'] = chunk['file1'].apply(get_class_from_package)
-        chunk['file2'] = chunk['file2'].apply(get_class_from_package)
-
-        # Add the chunk to the final data frame
-        if class_smell_chunks is None:
-            class_smell_chunks = chunk
-        else:
-            class_smell_chunks.append(chunk)
-
-    return class_smell_chunks
+    return smell_rows
 
 
 # Returns a DataFrame [file1, file2, parsedVersionDate]
 def explode_row_into_class_pairs(row):
     # For this row (smell+version) see what files it affects.
-    affected_files = parse_affected_classes(row.affectedElements)
     # Create a new row for each combination of two distinct files.
-    file_pairs = combinations(affected_files, 2)
+    file_pairs = combinations(row.affectedElementsList, 2)
     df = pd.DataFrame(file_pairs, columns=['file1', 'file2'])
     df = df.assign(parsedVersionDate=row.parsedVersionDate)
     return df
