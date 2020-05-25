@@ -12,16 +12,16 @@ class FOAnalyzer:
         # All pairs formed from all files changed in the relevant time frame.
 
         # Only keep the smelly pairs that are part of 'all_pairs'
-        #relevant_smelly_pairs = all_smelly_pairs.intersection(all_pairs)
-        relevant_smelly_pairs = [x for x in all_smelly_pairs if x in all_pairs]
+        relevant_smelly_pairs = all_smelly_pairs.intersection(all_pairs)
+        #relevant_smelly_pairs = [x for x in all_smelly_pairs if x in all_pairs]
 
         # Calculate sets for contingency table
-        #non_smelling_non_co_changing_pairs = all_pairs.difference(relevant_smelly_pairs).difference(co_changed_pairs)
-        non_smelling_non_co_changing_pairs = [x for x in all_pairs if x not in relevant_smelly_pairs and x not in co_changed_pairs]
-        #non_smelling_co_changing_pairs = co_changed_pairs.difference(relevant_smelly_pairs)
-        non_smelling_co_changing_pairs = [x for x in co_changed_pairs if x not in relevant_smelly_pairs]
-        #smelling_non_co_changing_pairs = relevant_smelly_pairs.difference(smelling_co_changing_pairs)
-        smelling_non_co_changing_pairs = [x for x in relevant_smelly_pairs if x not in smelling_co_changing_pairs]
+        non_smelling_non_co_changing_pairs = all_pairs.difference(relevant_smelly_pairs).difference(co_changed_pairs)
+        #non_smelling_non_co_changing_pairs = [x for x in all_pairs if x not in relevant_smelly_pairs and x not in co_changed_pairs]
+        non_smelling_co_changing_pairs = co_changed_pairs.difference(relevant_smelly_pairs)
+        #non_smelling_co_changing_pairs = [x for x in co_changed_pairs if x not in relevant_smelly_pairs]
+        smelling_non_co_changing_pairs = relevant_smelly_pairs.difference(smelling_co_changing_pairs)
+        #smelling_non_co_changing_pairs = [x for x in relevant_smelly_pairs if x not in smelling_co_changing_pairs]
 
         # Calculate values of the contingency table cells
         non_smelling_non_co_changing_pairs_size = len(non_smelling_non_co_changing_pairs)
