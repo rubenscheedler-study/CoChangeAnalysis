@@ -26,12 +26,13 @@ class PackageFOAnalysis:
         all_pairs_df = pd.read_csv(input_directory + "/file_pairs.csv")
         all_pairs_df.dropna(inplace=True)
         all_pairs_df = order_package1_and_package2(order_file1_and_file2(all_pairs_df))
+        all_pairs = set(list(zip(all_pairs_df.file1, all_pairs_df.file2)))
 
         # All co-changed pairs with corresponding date range.
         co_changes_df = find_pairs_with_date_range(input_directory + "/cochanges.csv", '%d-%m-%Y')
         co_changes_df.dropna(inplace=True)
         co_changed_pairs_with_date_range = order_package1_and_package2(order_file1_and_file2(co_changes_df))
-        co_changed_pairs = list(zip(co_changed_pairs_with_date_range.file1, co_changed_pairs_with_date_range.file2))
+        co_changed_pairs = set(list(zip(co_changed_pairs_with_date_range.file1, co_changed_pairs_with_date_range.file2)))
 
         # All smelly pairs of the whole analyzed history of the project.
         smelly_pairs_with_date_df = order_package1_and_package2(get_project_package_smells_in_range())
@@ -42,7 +43,6 @@ class PackageFOAnalysis:
         # Find intersection between smells and co-changes.
         smelling_co_changing_pairs_df = self.analyzer.get_co_changed_smelly_pairs(co_changed_pairs_with_date_range, smelly_file_pairs, level='file')
         smelling_co_changing_pairs = to_unique_file_tuples(smelling_co_changing_pairs_df)
-
-        all_pairs = list(zip(all_pairs_df.file1, all_pairs_df.file2))  # Here we keep track of allowed combinations. No need for duplicates.
+        # Here we keep track of allowed combinations. No need for duplicates.
 
         return smelling_co_changing_pairs, unique_smelly_file_pairs, co_changed_pairs, all_pairs

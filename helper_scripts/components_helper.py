@@ -9,6 +9,7 @@ def get_components():
     component_chunks = pd.read_csv(input_directory + "/component-characteristics-consecOnly.csv", chunksize=5000)
     # Create an empty copy with the same headers
     class_components = None
+    processed_chunks = []
     # For each chunk, apply the inner class filter and append the result to class_components.
     for component_chunk in component_chunks:
         # only consider classes, not packages
@@ -17,13 +18,11 @@ def get_components():
         mask = ~class_chunk_components['name'].str.contains("$", regex=False)
         # Apply the filter operation
         class_chunk_components = class_chunk_components[mask]
-        # Append the result to the final dataset
-        if class_components is None:
-            class_components = class_chunk_components
-        else:
-            class_components.append(class_chunk_components, ignore_index=True)
 
-        # filter on added or changed
+        processed_chunks.append(class_chunk_components)
+
+    # filter on added or changed
+    class_components = pd.concat(processed_chunks)
     components_zero = class_components[class_components['changeHasOccurredMetric'] == '0']
     components_true = class_components[class_components['changeHasOccurredMetric'] == 'true']
     components = components_zero.append(components_true, ignore_index=True)
