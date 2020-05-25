@@ -207,7 +207,8 @@ def difference_on_file_names(df1, df2):
 
 
 def to_unique_file_tuples(df):
-    return set(list(filter(lambda x: x[0] != x[1], zip(df.file1, df.file2))))
+    df = df.drop_duplicates(subset=['file1', 'file2'])
+    return set(list(zip(df.file1, df.file2)))
 
 
 def to_distinct_package_tuples(df):
