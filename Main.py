@@ -14,6 +14,7 @@ from Commits_over_lifetime import commits_over_lifetime
 from Exploration import run_exploration
 from FilesPerCommit import files_per_commit_information
 #from MBA import generate_mba_analysis_files
+from ThresholdAnalysis import threshold_distribution
 from TimeBetweenCommits import time_between_commits
 #from dynamic_Warp import generate_dtw_analysis_files
 from Utility import get_project_class_smells_in_range
@@ -40,7 +41,7 @@ def hyper_param_analysis():
     # Get the number of commits per day on which there were commits
     commits_per_commitday(repo, config.branch)
 
-#hyper_param_analysis()
+# hyper_param_analysis()
 
 
 # threshold_distribution()

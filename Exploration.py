@@ -38,6 +38,8 @@ def print_overlap_dtw():
     #smelly_pairs_df = pd.Dataframe(smelly_pairs, columns=['file1', 'file2'])
 
     class_smell_pairs_with_date = order_file1_and_file2(get_project_class_smells_in_range()) #df: file1, file2
+    class_smell_pairs_with_date = dtw_all_pairs.merge(class_smell_pairs_with_date, how='inner', left_on=['file1', 'file2'], right_on=['file1', 'file2'])
+
     package_smell_pairs_with_date = order_package1_and_package2(get_project_package_smells_in_range()) #df: package1, package2
     package_smell_pairs_with_date = dtw_all_pairs.merge(package_smell_pairs_with_date, how='inner', left_on=['package1', 'package2'], right_on=['package1', 'package2'])
 
