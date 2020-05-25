@@ -106,6 +106,9 @@ class FOAnalyzer:
                 co_changes_smells_chunk = co_changes_smells_chunk[co_changes_smells_chunk['parsedStartDate'] <= co_changes_smells_chunk['parsedVersionDate']]
                 co_changes_smells_chunk = co_changes_smells_chunk[co_changes_smells_chunk['parsedVersionDate'] <= co_changes_smells_chunk['parsedEndDate']]
 
+                if co_changes_smells_chunk.empty:
+                    continue
+
                 processed_chunks.append(co_changes_smells_chunk)
 
         return pd.concat(processed_chunks)
