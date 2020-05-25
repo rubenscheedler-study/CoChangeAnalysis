@@ -7,6 +7,7 @@ import config
 # Constants
 from ClassFOAnalysis import ClassFOAnalysis
 from CombinedFOAnalysis import CombinedFOAnalysis
+from MBA import generate_mba_analysis_files
 from PackageFOAnalysis import PackageFOAnalysis
 from CommitsPerCommitDay import commits_per_commitday
 from Commits_over_lifetime import commits_over_lifetime
@@ -16,6 +17,7 @@ from FilesPerCommit import files_per_commit_information
 from TimeBetweenCommits import time_between_commits
 #from dynamic_Warp import generate_dtw_analysis_files
 from Utility import get_project_class_smells_in_range
+from dynamic_Warp import generate_dtw_analysis_files
 
 
 def hyper_param_analysis():
@@ -44,20 +46,20 @@ def hyper_param_analysis():
 # threshold_distribution()
 
 
-# generate_dtw_analysis_files()
+generate_dtw_analysis_files()
 
 
 # generate_mba_analysis_files()
 
 
-# run_exploration()
-
+#run_exploration()
+'''
 cfa = ClassFOAnalysis()
 cfa.execute()
 
 pfa = PackageFOAnalysis()
 pfa.execute()
-
+'''
 #comfa = CombinedFOAnalysis()
 #comfa.execute()
 

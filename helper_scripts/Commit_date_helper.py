@@ -34,7 +34,7 @@ def convert_hashlist_to_datelist(hashlist):
 
 
 def add_file_dates(df):
-    df[['startdate', 'enddate']] = df.apply(lambda x: get_date_window(x.file1, x.file2), axis = 1, result_type='broadcast')
+    df[['startdate', 'enddate']] = df.apply(lambda x: get_date_window(x.file1, x.file2), axis = 1)
     return df
 
 
@@ -44,7 +44,7 @@ def get_date_window(file1, file2):
     first_moment = min(file1_row.mindate, file2_row.mindate)
     last_moment = max(file1_row.maxdate, file2_row.maxdate)
     x= pd.Series([datetime.fromtimestamp(first_moment), datetime.fromtimestamp(last_moment)])
-    return [datetime.fromtimestamp(first_moment), datetime.fromtimestamp(last_moment)]
+    return x
 
 
 def store_dates_for_files(df):

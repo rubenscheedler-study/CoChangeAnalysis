@@ -61,16 +61,26 @@ def generate_dtw_analysis_files():
     warps, changed_files = perform_dtw()
 
     # Map changed files to class.java
-    changed_files = list(map(get_class_from_package, changed_files))
+    #changed_files = list(map(get_class_from_package, changed_files))
 
-    warpdf = filter_duplicate_file_pairs(warps)
-
-    all_pairs = generate_all_pairs(changed_files)
+    # 1) Build the dataframe containing the co-changes
+    warpdf = filter_duplicate_file_pairs(warps) # df: file1, file2
+    # Add package columns
+    warpdf['package1'] = warpdf["file1"].str.rsplit(".", 1).str[0]
+    warpdf['package2'] = warpdf["file2"].str.rsplit(".", 1).str[0]
     warp_with_dates = add_file_dates(warpdf)
+    # Map files to class.java
+    warp_with_dates['file1'] = warp_with_dates['file1'].apply(get_class_from_package)
+    warp_with_dates['file2'] = warp_with_dates['file2'].apply(get_class_from_package)
 
-    # Map warps to class.java
-    warp_with_dates['file1'] = warp_with_dates['file1'].apply(lambda f: get_class_from_package(f, True))
-    warp_with_dates['file2'] = warp_with_dates['file2'].apply(lambda f: get_class_from_package(f, True))
+    # 2) Build the dataframe containing all changed pairs
+    all_pairs = generate_all_pairs(changed_files)  # df: file1, file2
+    all_pairs['package1'] = all_pairs["file1"].str.rsplit(".", 1).str[0]
+    all_pairs['package2'] = all_pairs["file2"].str.rsplit(".", 1).str[0]
+    # Map files to class.java
+    all_pairs['file1'] = all_pairs['file1'].apply(get_class_from_package)
+    all_pairs['file2'] = all_pairs['file2'].apply(get_class_from_package)
 
+    # 3) Store results in files
     warp_with_dates.to_csv(output_directory + "/dtw.csv")
     all_pairs.to_csv(output_directory + "/file_pairs_dtw.csv")
