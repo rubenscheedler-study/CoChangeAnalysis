@@ -13,15 +13,18 @@ def read_filename_pairs(path_to_csv):
     full_path_pairs = list(zip(all_pairs.file1, all_pairs.file2))
     return pd.DataFrame(list(map(lambda pair: (map_path_to_filename(pair[0]), map_path_to_filename(pair[1])), full_path_pairs)), columns=['file1', 'file2'])
 
+
 def find_pairs_with_date_range(path_to_csv, dateformat):
     co_changed_pairs_with_date_range = pd.read_csv(path_to_csv)
-    co_changed_pairs_with_date_range['parsedStartDate'] = pd.to_datetime(co_changed_pairs_with_date_range['startdate'], format= dateformat)
-    co_changed_pairs_with_date_range['parsedEndDate'] = pd.to_datetime(co_changed_pairs_with_date_range['enddate'], format= dateformat)
+    co_changed_pairs_with_date_range['parsedStartDate'] = pd.to_datetime(co_changed_pairs_with_date_range['startdate'], format=dateformat)
+    co_changed_pairs_with_date_range['parsedEndDate'] = pd.to_datetime(co_changed_pairs_with_date_range['enddate'], format=dateformat)
     return co_changed_pairs_with_date_range
+
 
 def find_pairs(path_to_csv):
     co_changed_pairs = pd.read_csv(path_to_csv)
     return co_changed_pairs
+
 
 #
 # Code for class smells
@@ -33,7 +36,7 @@ def get_project_class_smells_in_range():
     smells = pd.read_csv(input_directory + "/smell-characteristics-consecOnly.csv")
     smells = smells[smells.affectedComponentType == "class"]
 
-    #todo: this needs to be a function, as it is duplicated with the package version
+    # todo: this needs to be a function, as it is duplicated with the package version
 
     # Add a column for the parsed version date.
     smells['parsedVersionDate'] = pd.to_datetime(smells['versionDate'], format='%d-%m-%Y')
@@ -80,6 +83,7 @@ def explode_row_into_class_pairs(row):
 def parse_affected_classes(affected_elements_list_string):
     return [i.split('.')[-1] for i in affected_elements_list_string.split(', ')]
 
+
 #
 # Code for package smells
 #
@@ -106,7 +110,7 @@ def get_project_package_smells_in_range():
     # split into a list (,) and strip the package from each file in that list (.)
     smells['affectedPackagesList'] = smells['affectedElements'].str.split(', ')
     # generate all combinations of affected files from that list
-    smells['affectedPackageCombinations'] = [list(combinations(i, 2)) for i in smells['affectedPackagesList']]
+    smells['affectedPackageCombinations'] = [list(combinations(i, 2)) + get_twin_tuples(i) for i in smells['affectedPackagesList']]
     # drop the columns we dont need
     smells = smells[['affectedPackageCombinations', 'parsedVersionDate']]
     # explode the list of combinations into multiple rows
@@ -170,6 +174,7 @@ def order_package1_and_package2(df):
     df['package1'], df['package2'] = np.minimum(df['package1'], df['package2']), np.maximum(df['package1'], df['package2'])
     return df
 
+
 # Joins the two data frames on file1 and file2 and returns distinct matching (file1, file2) tuples.
 def get_intersecting_file_pairs(df1, df2):
     df2 = df2.rename(columns={"file1": "a", "file2": "b"})
@@ -205,5 +210,13 @@ def to_unique_file_tuples(df):
     return set(list(filter(lambda x: x[0] != x[1], zip(df.file1, df.file2))))
 
 
-def to_unique_package_tuples(df):
-    return set(list(filter(lambda x: x[0] != x[1], zip(df.package1, df.package2))))
+def to_distinct_package_tuples(df):
+    return set(zip(df.package1, df.package2))
+
+
+def split_into_chunks(df, chunk_size):
+    return [df[i:i + chunk_size] for i in range(0, df.shape[0], chunk_size)]
+
+
+def get_twin_tuples(lst):
+    return [(x, x) for x in lst]

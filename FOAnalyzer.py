@@ -2,6 +2,8 @@ import numpy as np
 from scipy import stats
 from scipy.stats import chi2
 
+from Utility import split_into_chunks
+
 
 class FOAnalyzer:
 
@@ -9,12 +11,16 @@ class FOAnalyzer:
         # All pairs formed from all files changed in the relevant time frame.
 
         # Only keep the smelly pairs that are part of 'all_pairs'
-        relevant_smelly_pairs = all_smelly_pairs.intersection(all_pairs)
+        #relevant_smelly_pairs = all_smelly_pairs.intersection(all_pairs)
+        relevant_smelly_pairs = [x for x in all_smelly_pairs if x in all_pairs]
 
         # Calculate sets for contingency table
-        non_smelling_non_co_changing_pairs = all_pairs.difference(relevant_smelly_pairs).difference(co_changed_pairs)
-        non_smelling_co_changing_pairs = co_changed_pairs.difference(relevant_smelly_pairs)
-        smelling_non_co_changing_pairs = relevant_smelly_pairs.difference(smelling_co_changing_pairs)
+        #non_smelling_non_co_changing_pairs = all_pairs.difference(relevant_smelly_pairs).difference(co_changed_pairs)
+        non_smelling_non_co_changing_pairs = [x for x in all_pairs if x not in relevant_smelly_pairs and x not in co_changed_pairs]
+        #non_smelling_co_changing_pairs = co_changed_pairs.difference(relevant_smelly_pairs)
+        non_smelling_co_changing_pairs = [x for x in co_changed_pairs if x not in relevant_smelly_pairs]
+        #smelling_non_co_changing_pairs = relevant_smelly_pairs.difference(smelling_co_changing_pairs)
+        smelling_non_co_changing_pairs = [x for x in relevant_smelly_pairs if x not in smelling_co_changing_pairs]
 
         # Calculate values of the contingency table cells
         non_smelling_non_co_changing_pairs_size = len(non_smelling_non_co_changing_pairs)
@@ -25,8 +31,8 @@ class FOAnalyzer:
         # total amount of observations
         n = non_smelling_non_co_changing_pairs_size + non_smelling_co_changing_pairs_size + smelling_non_co_changing_pairs_size + smelling_co_changing_pairs_size
         print("general information:")
-        print("all changed file pairs during the history: " + str(len(all_pairs)))
-        print("class level smells in project: " + str(len(all_smelly_pairs)))
+        print("all changed pairs during the history: " + str(len(all_pairs)))
+        print("smells in project: " + str(len(all_smelly_pairs)))
         print("smells contained in all pairs: " + str(len(relevant_smelly_pairs)))
         print("all co changes in project: " + str(len(co_changed_pairs)))
         print("\n")
@@ -85,10 +91,23 @@ class FOAnalyzer:
     # Returns all co-changes that have a matching smell. Note: can contain duplicates.
     @staticmethod
     def get_co_changed_smelly_pairs(co_change_df, smell_df, level='file'):
-        co_changes_smells = co_change_df.merge(smell_df, how='inner', left_on=[level+'1', level+'2'], right_on=[level+'1', level+'2'])
-        if co_changes_smells.empty:
-            return co_changes_smells # Empty df
-        else:
-            matching_co_changes = co_changes_smells[co_changes_smells.apply(lambda row: row['parsedStartDate'] <= row['parsedVersionDate'] <= row['parsedEndDate'], axis=1)]
-            return matching_co_changes
+        co_changes_smells = None  # Collects cumulative matches
+        cc_chunks = split_into_chunks(co_change_df, 1000)  # df's with <= 1000 rows
+        smell_chunks = split_into_chunks(smell_df, 1000)
+        for cc_chunk in cc_chunks:
+            for smell_chunk in smell_chunks:
+                co_changes_smells_chunk = cc_chunk.merge(smell_chunk, how='inner', left_on=[level+'1', level+'2'], right_on=[level+'1', level+'2'])
+                # Check we at least have a match
+                if co_changes_smells_chunk.empty:
+                    continue
 
+                co_changes_smells_chunk = co_changes_smells_chunk[co_changes_smells_chunk['parsedStartDate'] <= co_changes_smells_chunk['parsedVersionDate']]
+                co_changes_smells_chunk = co_changes_smells_chunk[co_changes_smells_chunk['parsedVersionDate'] <= co_changes_smells_chunk['parsedEndDate']]
+
+                # Add to the total df
+                if co_changes_smells is None:
+                    co_changes_smells = co_changes_smells_chunk
+                else:
+                    co_changes_smells.append(co_changes_smells_chunk)
+
+        return co_changes_smells
