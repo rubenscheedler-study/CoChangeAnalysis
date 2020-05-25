@@ -75,20 +75,27 @@ def generate_mba_analysis_files():
     if not os.path.exists(output_directory):
         os.makedirs(output_directory)
 
-    rules, changedFiles = perform_mba()
-    # Map changed files to class.java
-    changedFiles = list(map(get_class_from_package, changedFiles))
+    rules, changed_files = perform_mba()
 
-    rules = filter_duplicate_file_pairs(rules)
-
-    all_pairs_mba = generate_all_pairs(changedFiles)
+    # 1) Build the dataframe containing the co-changes
+    rules = filter_duplicate_file_pairs(rules)  # df: file1, file2
+    # Add package columns
+    rules['package1'] = rules["file1"].str.rsplit(".", 1).str[0]
+    rules['package2'] = rules["file2"].str.rsplit(".", 1).str[0]
     rules_with_dates = add_file_dates(rules)
+    # Map files to class.java
+    rules_with_dates['file1'] = rules_with_dates['file1'].apply(get_class_from_package)
+    rules_with_dates['file2'] = rules_with_dates['file2'].apply(get_class_from_package)
 
-    # Map warps to class.java
-    rules_with_dates['file1'] = rules_with_dates['file1'].apply(lambda f: get_class_from_package(f, True))
-    rules_with_dates['file2'] = rules_with_dates['file2'].apply(lambda f: get_class_from_package(f, True))
+    # 2) Build the dataframe containing all changed pairs
+    all_pairs = generate_all_pairs(changed_files)  # df: file1, file2
+    all_pairs['package1'] = all_pairs["file1"].str.rsplit(".", 1).str[0]
+    all_pairs['package2'] = all_pairs["file2"].str.rsplit(".", 1).str[0]
+    # Map files to class.java
+    all_pairs['file1'] = all_pairs['file1'].apply(get_class_from_package)
+    all_pairs['file2'] = all_pairs['file2'].apply(get_class_from_package)
 
     rules_with_dates.to_csv(output_directory + "/mba.csv")
-    all_pairs_mba.to_csv(output_directory + "/file_pairs_mba.csv")
+    all_pairs.to_csv(output_directory + "/file_pairs_mba.csv")
 
 

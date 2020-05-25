@@ -41,11 +41,12 @@ def print_overlap_dtw():
     package_smell_pairs_with_date = order_package1_and_package2(get_project_package_smells_in_range()) #df: package1, package2
     package_smell_pairs_with_date = dtw_all_pairs.merge(package_smell_pairs_with_date, how='inner', left_on=['package1', 'package2'], right_on=['package1', 'package2'])
 
-    smell_pairs_with_date = class_smell_pairs_with_date.concat(package_smell_pairs_with_date, ignore_index=True)
-    dtw_as_tuple = set(dtw_all_pairs.apply(lambda row: (row.file1, row.file2), axis=1))
+    smell_pairs_with_date = class_smell_pairs_with_date.append(package_smell_pairs_with_date[["file1", "file2"]], sort=False) #df: file1, file2
+    distinct_smelly_pairs = to_unique_file_tuples(smell_pairs_with_date) # (file1, file2)
 
-    distinct_smelly_pairs = set(sort_tuple_elements(smell_pairs_with_date))
-    relevant_smelly_pairs = set(distinct_smelly_pairs).intersection(dtw_as_tuple)
+    dtw_all_file_pair_tuples = set(dtw_all_pairs.apply(lambda row: (row.file1, row.file2), axis=1))
+
+    relevant_smelly_pairs = set(distinct_smelly_pairs).intersection(dtw_all_file_pair_tuples)
 
     overlapping_pairs = to_unique_file_tuples(analyzer.get_co_changed_smelly_pairs(dtw_cc_pairs, smell_pairs_with_date))
 

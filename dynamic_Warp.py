@@ -60,9 +60,6 @@ def generate_dtw_analysis_files():
 
     warps, changed_files = perform_dtw()
 
-    # Map changed files to class.java
-    #changed_files = list(map(get_class_from_package, changed_files))
-
     # 1) Build the dataframe containing the co-changes
     warpdf = filter_duplicate_file_pairs(warps) # df: file1, file2
     # Add package columns

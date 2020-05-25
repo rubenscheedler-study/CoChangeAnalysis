@@ -24,7 +24,7 @@ def get_components():
     # filter on added or changed
     class_components = pd.concat(processed_chunks)
     components_zero = class_components[class_components['changeHasOccurredMetric'] == '0']
-    components_true = class_components[class_components['changeHasOccurredMetric'] == 'true']
+    components_true = class_components[class_components['changeHasOccurredMetric'].isin(['true', 'True', True])]
     components = components_zero.append(components_true, ignore_index=True)
     store_dates_for_files(components[['version', 'name']])
     return components[['version', 'name']]
