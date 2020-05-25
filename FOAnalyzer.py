@@ -1,6 +1,7 @@
 import numpy as np
 from scipy import stats
 from scipy.stats import chi2
+import pandas as pd
 
 from Utility import split_into_chunks
 
@@ -92,8 +93,9 @@ class FOAnalyzer:
     @staticmethod
     def get_co_changed_smelly_pairs(co_change_df, smell_df, level='file'):
         co_changes_smells = None  # Collects cumulative matches
-        cc_chunks = split_into_chunks(co_change_df, 1000)  # df's with <= 1000 rows
-        smell_chunks = split_into_chunks(smell_df, 1000)
+        cc_chunks = split_into_chunks(co_change_df, 10000)  # df's with <= 1000 rows
+        smell_chunks = split_into_chunks(smell_df, 10000)
+        processed_chunks = []
         for cc_chunk in cc_chunks:
             for smell_chunk in smell_chunks:
                 co_changes_smells_chunk = cc_chunk.merge(smell_chunk, how='inner', left_on=[level+'1', level+'2'], right_on=[level+'1', level+'2'])
@@ -104,10 +106,6 @@ class FOAnalyzer:
                 co_changes_smells_chunk = co_changes_smells_chunk[co_changes_smells_chunk['parsedStartDate'] <= co_changes_smells_chunk['parsedVersionDate']]
                 co_changes_smells_chunk = co_changes_smells_chunk[co_changes_smells_chunk['parsedVersionDate'] <= co_changes_smells_chunk['parsedEndDate']]
 
-                # Add to the total df
-                if co_changes_smells is None:
-                    co_changes_smells = co_changes_smells_chunk
-                else:
-                    co_changes_smells.append(co_changes_smells_chunk)
+                processed_chunks.append(co_changes_smells_chunk)
 
-        return co_changes_smells
+        return pd.concat(processed_chunks)
