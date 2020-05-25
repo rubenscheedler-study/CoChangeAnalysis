@@ -55,8 +55,8 @@ generate_mba_analysis_files()
 
 run_exploration()
 '''
-cfa = ClassFOAnalysis()
-cfa.execute()
+#cfa = ClassFOAnalysis()
+#cfa.execute()
 
 pfa = PackageFOAnalysis()
 pfa.execute()

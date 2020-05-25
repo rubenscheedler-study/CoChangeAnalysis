@@ -36,12 +36,14 @@ class PackageFOAnalysis:
 
         # All smelly pairs of the whole analyzed history of the project.
         smelly_pairs_with_date_df = order_package1_and_package2(get_project_package_smells_in_range())
+        smelly_pairs_with_date_df = smelly_pairs_with_date_df.drop_duplicates(subset=['package1', 'package2'])
         # Find what changed file pairs are part of a smelly package
-        smelly_file_pairs = all_pairs_df.merge(smelly_pairs_with_date_df, how='inner', left_on=['package1', 'package2'], right_on=['package1', 'package2'])
+        #smelly_file_pairs = all_pairs_df.merge(smelly_pairs_with_date_df, how='inner', left_on=['package1', 'package2'], right_on=['package1', 'package2'])
+        smelly_file_pairs = self.analyzer.perform_chunkified_pair_join(all_pairs_df, smelly_pairs_with_date_df, level='package', compare_dates=False)
         unique_smelly_file_pairs = to_unique_file_tuples(smelly_file_pairs)
 
         # Find intersection between smells and co-changes.
-        smelling_co_changing_pairs_df = self.analyzer.get_co_changed_smelly_pairs(co_changed_pairs_with_date_range, smelly_file_pairs, level='file')
+        smelling_co_changing_pairs_df = self.analyzer.perform_chunkified_pair_join(co_changed_pairs_with_date_range, smelly_file_pairs, level='file')
         smelling_co_changing_pairs = to_unique_file_tuples(smelling_co_changing_pairs_df)
         # Here we keep track of allowed combinations. No need for duplicates.
 

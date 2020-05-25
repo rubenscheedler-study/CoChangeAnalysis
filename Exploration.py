@@ -54,7 +54,7 @@ def print_overlap_of_algorithm(name, file_containing_all_pairs, file_containing_
 
     relevant_smelly_pairs = set(distinct_smelly_pairs).intersection(all_file_pair_tuples)
 
-    overlapping_pairs = to_unique_file_tuples(analyzer.get_co_changed_smelly_pairs(cc_pairs_df, smell_pairs_with_date))
+    overlapping_pairs = to_unique_file_tuples(analyzer.perform_chunkified_pair_join(cc_pairs_df, smell_pairs_with_date))
 
     print(name, " all pairs:\t\t", len(all_pairs_df))
     print(name, " co-change pairs:\t\t", len(cc_pairs_df))

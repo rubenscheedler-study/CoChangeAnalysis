@@ -35,7 +35,7 @@ class ClassFOAnalysis:
         smelly_pairs_with_date_df = order_file1_and_file2(get_project_class_smells_in_range())
         #smelly_pairs_with_date_df.to_csv(output_directory + '/test.csv')
         # Find intersection between smells and co-changes.
-        smelling_co_changing_pairs_df = self.analyzer.get_co_changed_smelly_pairs(co_changed_pairs_with_date_range, smelly_pairs_with_date_df)
+        smelling_co_changing_pairs_df = self.analyzer.perform_chunkified_pair_join(co_changed_pairs_with_date_range, smelly_pairs_with_date_df)
         smelling_co_changing_pairs = to_unique_file_tuples(smelling_co_changing_pairs_df)
 
         all_smelly_pairs = to_unique_file_tuples(smelly_pairs_with_date_df)

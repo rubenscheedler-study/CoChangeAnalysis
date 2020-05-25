@@ -91,24 +91,25 @@ class FOAnalyzer:
 
     # Returns all co-changes that have a matching smell. Note: can contain duplicates.
     @staticmethod
-    def get_co_changed_smelly_pairs(co_change_df, smell_df, level='file'):
-        co_changes_smells = None  # Collects cumulative matches
-        cc_chunks = split_into_chunks(co_change_df, 10000)  # df's with <= 1000 rows
-        smell_chunks = split_into_chunks(smell_df, 10000)
+    def perform_chunkified_pair_join(df1, df2, level='file', compare_dates=True):
+
+        chunks1 = split_into_chunks(df1, 100000)  # df's with <= 1000 rows
+        chunks2 = split_into_chunks(df2, 100000)
         processed_chunks = []
-        for cc_chunk in cc_chunks:
-            for smell_chunk in smell_chunks:
-                co_changes_smells_chunk = cc_chunk.merge(smell_chunk, how='inner', left_on=[level+'1', level+'2'], right_on=[level+'1', level+'2'])
+        for cc_chunk in chunks1:
+            for smell_chunk in chunks2:
+                match_chunk = cc_chunk.merge(smell_chunk, how='inner', left_on=[level+'1', level+'2'], right_on=[level+'1', level+'2'])
                 # Check we at least have a match
-                if co_changes_smells_chunk.empty:
+                if match_chunk.empty:
                     continue
 
-                co_changes_smells_chunk = co_changes_smells_chunk[co_changes_smells_chunk['parsedStartDate'] <= co_changes_smells_chunk['parsedVersionDate']]
-                co_changes_smells_chunk = co_changes_smells_chunk[co_changes_smells_chunk['parsedVersionDate'] <= co_changes_smells_chunk['parsedEndDate']]
+                if compare_dates:
+                    match_chunk = match_chunk[match_chunk['parsedStartDate'] <= match_chunk['parsedVersionDate']]
+                    match_chunk = match_chunk[match_chunk['parsedVersionDate'] <= match_chunk['parsedEndDate']]
 
-                if co_changes_smells_chunk.empty:
-                    continue
+                    if match_chunk.empty:
+                        continue
 
-                processed_chunks.append(co_changes_smells_chunk)
+                processed_chunks.append(match_chunk)
 
         return pd.concat(processed_chunks)
