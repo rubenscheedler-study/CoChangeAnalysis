@@ -39,7 +39,7 @@ class PackageFOAnalysis:
         # Find what changed file pairs are part of a smelly package
         smelly_file_pairs = all_pairs_df.merge(smelly_pairs_with_date_df, how='inner', left_on=['package1', 'package2'], right_on=['package1', 'package2'])
         unique_smelly_file_pairs = to_unique_file_tuples(smelly_file_pairs)
-        print(smelly_file_pairs[['file1', 'file2']].head(150))
+
         # Find intersection between smells and co-changes.
         smelling_co_changing_pairs_df = self.analyzer.get_co_changed_smelly_pairs(co_changed_pairs_with_date_range, smelly_file_pairs, level='file')
         smelling_co_changing_pairs = to_unique_file_tuples(smelling_co_changing_pairs_df)

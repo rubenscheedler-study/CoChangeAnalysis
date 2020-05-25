@@ -19,18 +19,18 @@ def run_exploration():
 
 
 def calculate_smell_co_change_overlaps():
-    dtw_pairs = set(print_overlap_dtw())
-    mba_pairs = set(print_overlap_mba())
+    dtw_pairs = set(overlap_dtw())
+    mba_pairs = set(overlap_mba())
     fo_pairs = set(print_overlap_fo())
     venn3([dtw_pairs, mba_pairs, fo_pairs], ('dtw', 'mba', 'fo'))
     plt.show()
 
 
-def print_overlap_dtw():
-    print_overlap_of_algorithm("DTW", output_directory + "/file_pairs_dtw.csv", output_directory + "/dtw.csv")
+def overlap_dtw():
+    return print_overlap_of_algorithm("DTW", output_directory + "/file_pairs_dtw.csv", output_directory + "/dtw.csv")
 
 
-def print_overlap_of_algorithm(name, file_containing_all_pairs, file_containing_co_changes):
+def print_overlap_of_algorithm(name, file_containing_all_pairs, file_containing_co_changes, include_class_level=True, include_package_level=True):
     print("--- Overlap ", name, " co-changes and smells: ---")
 
     all_pairs_df = order_package1_and_package2(order_file1_and_file2(find_pairs(file_containing_all_pairs)))
@@ -67,31 +67,9 @@ def print_overlap_of_algorithm(name, file_containing_all_pairs, file_containing_
         print(pair[0], ", ", pair[1])
     return overlapping_pairs
 
-def print_overlap_mba():
-    print("--- Overlap MBA co-changes and smells: ---")
-    mba_all_pairs = order_file1_and_file2(find_pairs(output_directory + "/file_pairs_mba.csv"))
-    mba_cc_pairs = order_file1_and_file2(find_pairs_with_date_range(output_directory + "/mba.csv", '%Y-%m-%d %H:%M:%S'))
+def overlap_mba():
+    return print_overlap_of_algorithm("MBA", output_directory + "/file_pairs_mba.csv", output_directory + "/mba.csv")
 
-    # Get raw smell pairs
-    smell_pairs_with_date = order_file1_and_file2(get_project_class_smells_in_range(True))
-    smelly_pairs = set(smell_pairs_with_date.apply(lambda row: (row.file1, row.file2), axis=1))
-    mba_as_tuple = set(mba_all_pairs.apply(lambda row: (row.file1, row.file2), axis=1))
-
-    distinct_smelly_pairs = set(sort_tuple_elements(smelly_pairs))
-    relevant_smelly_pairs = set(distinct_smelly_pairs).intersection(mba_as_tuple)
-
-    overlapping_pairs = to_unique_file_tuples(analyzer.get_co_changed_smelly_pairs(mba_cc_pairs, smell_pairs_with_date))
-
-    print("MBA all pairs:\t\t", len(mba_all_pairs))
-    print("MBA co-change pairs:\t\t", len(mba_cc_pairs))
-    print("All smell pairs:\t\t", len(smelly_pairs))
-    print("Relevant smell pairs:\t\t", len(relevant_smelly_pairs))
-    print("Overlapping pairs:\t\t", len(overlapping_pairs))
-    print("Overlap ratio:\t\t", 0 if len(relevant_smelly_pairs) == 0 else 100 * (len(overlapping_pairs) / len(relevant_smelly_pairs)))
-    print("overlapping pairs:")
-    for pair in overlapping_pairs:
-        print(pair[0], ", ", pair[1])
-    return overlapping_pairs
 
 
 def print_overlap_fo():

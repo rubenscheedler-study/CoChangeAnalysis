@@ -5,7 +5,7 @@ from FOAnalyzer import FOAnalyzer
 from Utility import get_project_class_smells_in_range, order_file1_and_file2, \
     get_class_from_package, to_unique_file_tuples, \
     find_pairs_with_date_range
-from config import input_directory
+from config import input_directory, output_directory
 
 
 class ClassFOAnalysis:
@@ -33,7 +33,7 @@ class ClassFOAnalysis:
 
         # All smelly pairs of the whole analyzed history of the project.
         smelly_pairs_with_date_df = order_file1_and_file2(get_project_class_smells_in_range())
-
+        #smelly_pairs_with_date_df.to_csv(output_directory + '/test.csv')
         # Find intersection between smells and co-changes.
         smelling_co_changing_pairs_df = self.analyzer.get_co_changed_smelly_pairs(co_changed_pairs_with_date_range, smelly_pairs_with_date_df)
         smelling_co_changing_pairs = to_unique_file_tuples(smelling_co_changing_pairs_df)
