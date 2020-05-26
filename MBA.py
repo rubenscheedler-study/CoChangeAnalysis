@@ -1,10 +1,12 @@
 import os
 
+import seaborn
 from mlxtend.frequent_patterns import apriori
 from mlxtend.frequent_patterns import association_rules
 import pandas as pd
 from mlxtend.preprocessing import TransactionEncoder
 import numpy as np
+import matplotlib.pyplot as plt
 
 from Utility import get_class_from_package
 from config import output_directory
@@ -31,42 +33,61 @@ def perform_mba():
 
 def generate_basket_rules(df):
     all_itemsets = apriori(df, min_support=0.0000001, use_colnames=True, max_len=2)
-    distance_list = sorted(all_itemsets['support'])
+    all_itemsets.to_pickle(output_directory + "/mba_support_0.pkl")
+    supp0 = sorted(all_itemsets['support'])
     print("----threshold results mba support----")
     print("quartile values:")
-    firstquartile = np.percentile(distance_list, 25)
-    median = np.percentile(distance_list, 50)
-    thirdquartile = np.percentile(distance_list, 75)
-    print("90% at threshold: ", np.percentile(distance_list, 90))
-    print("95% at threshold: ", np.percentile(distance_list, 95))
+    firstquartile = np.percentile(supp0, 25)
+    median = np.percentile(supp0, 50)
+    thirdquartile = np.percentile(supp0, 75)
+    print("90% at threshold: ", np.percentile(supp0, 90))
+    print("95% at threshold: ", np.percentile(supp0, 95))
     print(firstquartile, median, thirdquartile)
 
 
     rules = association_rules(all_itemsets, metric="confidence", min_threshold=0.0)
-    distance_list = sorted(rules['confidence'])
+    rules.to_pickle(output_directory + "/mba_conf_0_supp_0.pkl")
+    conf_0_supp0 = sorted(rules['confidence'])
     print("----threshold results mba confidence without support threshold----")
     print("quartile values:")
-    firstquartile = np.percentile(distance_list, 25)
-    median = np.percentile(distance_list, 50)
-    thirdquartile = np.percentile(distance_list, 75)
-    print("90% at threshold: ", np.percentile(distance_list, 90))
-    print("95% at threshold: ", np.percentile(distance_list, 95))
+    firstquartile = np.percentile(conf_0_supp0, 25)
+    median = np.percentile(conf_0_supp0, 50)
+    thirdquartile = np.percentile(conf_0_supp0, 75)
+    print("90% at threshold: ", np.percentile(conf_0_supp0, 90))
+    print("95% at threshold: ", np.percentile(conf_0_supp0, 95))
     print(firstquartile, median, thirdquartile)
 
 
 
     frequent_itemsets = apriori(df, min_support=0.02, use_colnames=True, max_len=2)
+    frequent_itemsets.to_pickle(output_directory + "/mba_support_2.pkl")
+    supp2 = sorted(frequent_itemsets['support'])
+
     rules = association_rules(frequent_itemsets, metric="confidence", min_threshold=0.0)
-    distance_list = sorted(rules['confidence'])
+    rules.to_pickle(output_directory + "/mba_conf_0_supp_2.pkl")
+
+    conf_0_supp2 = sorted(rules['confidence'])
+
+    #TODO: extract to proper function
+    seaborn.violinplot(data=supp0)
+    plt.show()
+    seaborn.violinplot(data=conf_0_supp0)
+    plt.show()
+    seaborn.violinplot(data=supp2)
+    plt.show()
+    seaborn.violinplot(data=conf_0_supp2)
+    plt.show()
+
     print("----threshold results mba confidence after support threshold----")
     print("quartile values:")
-    firstquartile = np.percentile(distance_list, 25)
-    median = np.percentile(distance_list, 50)
-    thirdquartile = np.percentile(distance_list, 75)
-    print("90% at threshold: ", np.percentile(distance_list, 90))
-    print("95% at threshold: ", np.percentile(distance_list, 95))
+    firstquartile = np.percentile(conf_0_supp2, 25)
+    median = np.percentile(conf_0_supp2, 50)
+    thirdquartile = np.percentile(conf_0_supp2, 75)
+    print("90% at threshold: ", np.percentile(conf_0_supp2, 90))
+    print("95% at threshold: ", np.percentile(conf_0_supp2, 95))
     print(firstquartile, median, thirdquartile)
     rules = association_rules(frequent_itemsets, metric="confidence", min_threshold=0.8)
+    rules.to_pickle(output_directory + "/mba_conf_8.pkl")
     return rules
 
 

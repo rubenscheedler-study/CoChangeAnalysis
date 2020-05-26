@@ -1,12 +1,16 @@
 import os
+from collections import namedtuple
+from operator import attrgetter
 
+import seaborn
 from dtw import dtw
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
+import config
 from Utility import get_class_from_package
-from config import output_directory
+from config import output_directory, project_name
 from helper_scripts.Commit_date_helper import convert_hashlist_to_datelist, add_file_dates
 from helper_scripts.components_helper import get_components
 from helper_scripts.output_helper import filter_duplicate_file_pairs, generate_all_pairs
@@ -19,6 +23,7 @@ def perform_dtw():
     # generate list of change dates from versions
     grouped_comp['changeMoments'] = list(map(convert_hashlist_to_datelist, grouped_comp['changeVersions']))
 
+    Distance = namedtuple('Distance', 'x y dist')
     return_list = []
     distance_list = []
     # iterate over rows
@@ -28,24 +33,35 @@ def perform_dtw():
             normDistance = generate_dtw(x.changeMoments, y.changeMoments)
             if normDistance < 86400:
                 return_list.append((x.name, y.name))
-            distance_list.append(normDistance)
+            distance_list.append(Distance(x.name, y.name, normDistance))
 
     # get highest threshold
-    distance_list = sorted(distance_list)
+    distance_list = sorted(distance_list, key=attrgetter('dist'))
+    distance_df = pd.DataFrame(distance_list)
+    distance_df.to_pickle(output_directory + "/dtw_distances.pkl")
     made_threshold = len(return_list)/len(distance_list)
     print(made_threshold)
     print("----threshold results DTW----")
     print("quartile values:")
-    firstquartile = np.percentile(distance_list, 25)
-    median = np.percentile(distance_list, 50)
-    thirdquartile = np.percentile(distance_list, 75)
-    print("10% at threshold: ", np.percentile(distance_list, 10))
-    print("1% at threshold: ", np.percentile(distance_list, 1))
+    distances = list(map(lambda x: x.dist, distance_list))
+    visualise_dtw_distances(distances)
+    firstquartile = np.percentile(distances, 25)
+    median = np.percentile(distances, 50)
+    thirdquartile = np.percentile(distances, 75)
+    print("10% at threshold: ", np.percentile(distances, 10))
+    print("1% at threshold: ", np.percentile(distances, 1))
     print(firstquartile, median, thirdquartile)
 
 
     warpdf = pd.DataFrame(return_list, columns=['file1', 'file2'])
     return warpdf, components['name']
+
+
+def visualise_dtw_distances(distance_list):
+    ax = seaborn.violinplot(data=distance_list)
+    ax.set_ylabel('distance in seconds')
+    ax.set_xlabel(config.project_name)
+    plt.show()
 
 
 def generate_dtw(x, y):
