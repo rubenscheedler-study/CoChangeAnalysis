@@ -46,20 +46,20 @@ def hyper_param_analysis():
 
 # threshold_distribution()
 
-'''
-generate_dtw_analysis_files()
+
+#generate_dtw_analysis_files()
 
 
-generate_mba_analysis_files()
+#generate_mba_analysis_files()
 
 
 run_exploration()
-'''
+
 #cfa = ClassFOAnalysis()
 #cfa.execute()
 
-pfa = PackageFOAnalysis()
-pfa.execute()
+# pfa = PackageFOAnalysis()
+# pfa.execute()
 
 #comfa = CombinedFOAnalysis()
 #comfa.execute()

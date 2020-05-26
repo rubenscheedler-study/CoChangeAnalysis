@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 
 from config import input_directory, analysis_start_date, analysis_end_date
+from helper_scripts.pickle_helper import load_pickle, save_pickle
 
 
 def read_filename_pairs(path_to_csv):
@@ -33,6 +34,10 @@ def find_pairs(path_to_csv):
 # Looks at {input}/{project}/smell-characteristics-consecOnly.csv
 # Reads all pairs. Filters duplicates and filters out pairs outside the date range set in config.
 def get_project_class_smells_in_range():
+    class_smells = load_pickle("class_smells")
+    if class_smells is not None:
+        return class_smells
+
     smells = pd.read_csv(input_directory + "/smell-characteristics-consecOnly.csv")
     smells = smells[smells.affectedComponentType == "class"]
 
@@ -66,6 +71,9 @@ def get_project_class_smells_in_range():
     smell_rows['file1'] = smell_rows['file1'].apply(get_class_from_package)
     smell_rows['file2'] = smell_rows['file2'].apply(get_class_from_package)
 
+    # pickle for later reuse
+    save_pickle(smell_rows, "class_smells")
+
     return smell_rows
 
 
@@ -92,6 +100,10 @@ def parse_affected_classes(affected_elements_list_string):
 # Looks at {input}/{project}/smell-characteristics-consecOnly.csv
 # Reads all pairs. Filters duplicates and filters out pairs outside the date range set in config.
 def get_project_package_smells_in_range():
+    package_smells = load_pickle("package_smells")
+    if package_smells is not None:
+        return package_smells
+
     smells = pd.read_csv(input_directory + "/smell-characteristics-consecOnly.csv")
     smells = smells[smells.affectedComponentType == "package"]
 
@@ -119,6 +131,9 @@ def get_project_package_smells_in_range():
     smells[['package1', 'package2']] = pd.DataFrame(smells['affectedPackageCombinations'].tolist(), index=smells.index)
     # The file can contain smells affecting just one file, which ends up resolving to nan. Luckily, they are not relevant so we filter them.
     smell_rows = smells.dropna()
+
+    # pickle for later reuse
+    save_pickle(smell_rows, "package_smells")
 
     return smell_rows
 
@@ -221,3 +236,4 @@ def split_into_chunks(df, chunk_size):
 
 def get_twin_tuples(lst):
     return [(x, x) for x in lst]
+

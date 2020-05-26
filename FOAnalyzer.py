@@ -93,8 +93,8 @@ class FOAnalyzer:
     @staticmethod
     def perform_chunkified_pair_join(df1, df2, level='file', compare_dates=True):
 
-        chunks1 = split_into_chunks(df1, 100000)  # df's with <= 1000 rows
-        chunks2 = split_into_chunks(df2, 100000)
+        chunks1 = split_into_chunks(df1, 10000)  # df's with <= 1000 rows
+        chunks2 = split_into_chunks(df2, 10000)
         processed_chunks = []
         for cc_chunk in chunks1:
             for smell_chunk in chunks2:
@@ -112,4 +112,4 @@ class FOAnalyzer:
 
                 processed_chunks.append(match_chunk)
 
-        return pd.concat(processed_chunks)
+        return pd.concat(processed_chunks) if processed_chunks != [] else pd.DataFrame(columns=[level+'1', level+'2'])
