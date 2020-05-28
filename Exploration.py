@@ -21,9 +21,9 @@ def run_exploration():
 
 def calculate_smell_co_change_overlaps():
     dtw_pairs = set(overlap_dtw())
-    mba_pairs = set(overlap_mba())
-    fo_pairs = set(overlap_fo())
-    venn3([dtw_pairs, mba_pairs, fo_pairs], ('dtw', 'mba', 'fo'))
+    #mba_pairs = set(overlap_mba())
+    #fo_pairs = set(overlap_fo())
+    #venn3([dtw_pairs, mba_pairs, fo_pairs], ('dtw', 'mba', 'fo'))
     plt.show()
 
 
