@@ -38,28 +38,28 @@ def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, in
 
     class_smell_pairs_with_date = pd.DataFrame(columns=['file1', 'file2'])
     if include_class_level:
-        class_smell_pairs_with_date = load_pickle("class_smell_pairs_with_date.p")
-        #if class_smell_pairs_with_date is not None:
-        #   return class_smell_pairs_with_date
+        class_smell_pairs_with_date = load_pickle("class_smell_pairs_with_date")
+        if class_smell_pairs_with_date is not None:
+            return class_smell_pairs_with_date
 
         class_smell_pairs_with_date = order_file1_and_file2(get_project_class_smells_in_range())  # df: file1, file2
         # Find file pairs that are part of the same class-level smell:
         class_smell_pairs_with_date = analyzer.perform_chunkified_pair_join(all_pairs_df, class_smell_pairs_with_date, level='file', compare_dates=False)
-        save_pickle(class_smell_pairs_with_date, "class_smell_pairs_with_date.p")
+        save_pickle(class_smell_pairs_with_date, "class_smell_pairs_with_date")
 
 
     package_smell_pairs_with_date = pd.DataFrame(columns=['file1', 'file2'])
     if include_package_level:
-        package_smell_pairs_with_date = load_pickle("package_smell_pairs_with_date.p")
-        #if package_smell_pairs_with_date is not None:
-        #    return package_smell_pairs_with_date
+        package_smell_pairs_with_date = load_pickle("package_smell_pairs_with_date")
+        if package_smell_pairs_with_date is not None:
+            return package_smell_pairs_with_date
 
         package_smell_pairs_with_date = order_package1_and_package2(get_project_package_smells_in_range())  # df: package1, package2
         # We want to find file pairs whose package are part of the same smell:
         package_smell_pairs_with_date = analyzer.perform_chunkified_pair_join(all_pairs_df, package_smell_pairs_with_date, level='package', compare_dates=False)
         # Note: we are interested in (file1, file2) in package_smell_pairs
 
-        save_pickle(package_smell_pairs_with_date, "package_smell_pairs_with_date.p")
+        save_pickle(package_smell_pairs_with_date, "package_smell_pairs_with_date")
 
     # Combine the pairs
     smell_pairs_with_date = pd.DataFrame()
