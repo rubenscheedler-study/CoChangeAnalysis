@@ -94,35 +94,15 @@ class FOAnalyzer:
     # Returns all co-changes that have a matching smell. Note: can contain duplicates.
     @staticmethod
     def perform_chunkified_pair_join(df1, df2, level='file', compare_dates=True):
-        # creating a empty bucket to save result
-        df_result = pd.DataFrame(columns=(df1.columns.append(df2.columns)).unique())
-        df_result.to_csv("df3.csv", index_label=False)
-        df2.to_csv("df2.csv", index_label=False)
 
-        def preprocess(x):
-            df22 = pd.merge(df1, x, how='inner', left_on=[level+'1', level+'2'], right_on=[level+'1', level+'2'])
-            df22.to_csv("df3.csv", mode="a", header=False, index=False)
-
-        reader = pd.read_csv("df2.csv", chunksize=10000)  # chunksize depends with you colsize
-
-        [preprocess(r) for r in reader]
-
-        dataset = pd.read_csv("df3.csv", index_col=False)
-        os.remove("df2.csv")
-        os.remove("df3.csv")
-        return dataset
-
-
-        chunks1 = split_into_chunks(df1, 100000)  # df's with <= 1000 rows
-        chunks2 = split_into_chunks(df2, 100000)
-        del df2
+        chunks1 = split_into_chunks(df1, 10000)  # df's with <= 1000 rows
+        chunks2 = split_into_chunks(df2, 10000)
         processed_chunks = []
         for cc_chunk in chunks1:
             for smell_chunk in chunks2:
                 match_chunk = cc_chunk.merge(smell_chunk, how='inner', left_on=[level+'1', level+'2'], right_on=[level+'1', level+'2'])
                 # Check we at least have a match
                 if match_chunk.empty:
-                    del smell_chunk
                     continue
 
                 if compare_dates:
@@ -130,12 +110,8 @@ class FOAnalyzer:
                     match_chunk = match_chunk[match_chunk['parsedVersionDate'] <= match_chunk['parsedEndDate']]
 
                     if match_chunk.empty:
-                        del smell_chunk
                         continue
 
                 processed_chunks.append(match_chunk)
-                del smell_chunk
-            del cc_chunk
-
 
         return pd.concat(processed_chunks) if processed_chunks != [] else pd.DataFrame(columns=[level+'1', level+'2'])
