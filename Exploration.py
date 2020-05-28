@@ -31,8 +31,6 @@ def calculate_smell_co_change_overlaps():
 
 def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, include_class_level=True, include_package_level=True):
     print("--- Overlap ", name, " co-changes and smells: ---")
-    all_pairs_unsorted['package1'].replace('', np.nan, inplace=True)
-    all_pairs_unsorted['package2'].replace('', np.nan, inplace=True)
     all_pairs_unsorted.dropna(inplace=True)
     co_changes_unsorted.dropna(inplace=True)
     all_pairs_df = order_package1_and_package2(order_file1_and_file2(all_pairs_unsorted))
