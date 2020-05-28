@@ -21,20 +21,18 @@ def run_exploration():
 def calculate_smell_co_change_overlaps():
     dtw_pairs = set(overlap_dtw())
     mba_pairs = set(overlap_mba())
-    fo_pairs = set(print_overlap_fo())
+    fo_pairs = set(overlap_fo())
     venn3([dtw_pairs, mba_pairs, fo_pairs], ('dtw', 'mba', 'fo'))
     plt.show()
 
 
-def overlap_dtw():
-    return print_overlap_of_algorithm("DTW", output_directory + "/file_pairs_dtw.csv", output_directory + "/dtw.csv")
-
-
-def print_overlap_of_algorithm(name, file_containing_all_pairs, file_containing_co_changes, include_class_level=True, include_package_level=True):
+def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, include_class_level=True, include_package_level=True):
     print("--- Overlap ", name, " co-changes and smells: ---")
 
-    all_pairs_df = order_package1_and_package2(order_file1_and_file2(find_pairs(file_containing_all_pairs)))
-    cc_pairs_df = order_package1_and_package2(order_file1_and_file2(find_pairs_with_date_range(file_containing_co_changes, '%Y-%m-%d %H:%M:%S')))
+    all_pairs_unsorted.dropna(inplace=True)
+    co_changes_unsorted.dropna(inplace=True)
+    all_pairs_df = order_package1_and_package2(order_file1_and_file2(all_pairs_unsorted))
+    cc_pairs_df = order_package1_and_package2(order_file1_and_file2(co_changes_unsorted))
 
     class_smell_pairs_with_date = pd.DataFrame(columns=['file1', 'file2'])
     if include_class_level:
@@ -44,7 +42,6 @@ def print_overlap_of_algorithm(name, file_containing_all_pairs, file_containing_
         class_smell_pairs_with_date.set_index(['file1', 'file2'])
         all_pairs_df.set_index(['file1', 'file2'])
         class_smell_pairs_with_date = analyzer.perform_chunkified_pair_join(all_pairs_df, class_smell_pairs_with_date, level='file', compare_dates=False)
-        #TODO pickle
 
     package_smell_pairs_with_date = pd.DataFrame(columns=['file1', 'file2'])
     if include_package_level:
@@ -55,7 +52,6 @@ def print_overlap_of_algorithm(name, file_containing_all_pairs, file_containing_
 
         package_smell_pairs_with_date = analyzer.perform_chunkified_pair_join(all_pairs_df, package_smell_pairs_with_date, level='package', compare_dates=False)
         package_smell_pairs_with_date = package_smell_pairs_with_date.drop_duplicates(subset=['file1', 'file2'])
-        #TODO pickle?
 
     # Combine the pairs
     smell_pairs_with_date = pd.DataFrame()
@@ -76,28 +72,31 @@ def print_overlap_of_algorithm(name, file_containing_all_pairs, file_containing_
     print("Overlapping pairs:\t\t", len(overlapping_pairs))
     print("Overlap ratio:\t\t", 0 if len(relevant_smelly_pairs) == 0 else 100 * (len(overlapping_pairs) / len(relevant_smelly_pairs)))
     print("overlapping pairs:")
-    for pair in overlapping_pairs:
-        print(pair[0], ", ", pair[1])
+    #for pair in overlapping_pairs:
+    #    print(pair[0], ", ", pair[1])
     return overlapping_pairs
 
+
+def overlap_dtw():
+    return print_overlap_of_algorithm("DTW",
+                                      find_pairs(output_directory + "/file_pairs_dtw.csv"),
+                                      find_pairs_with_date_range(output_directory + "/dtw.csv", '%Y-%m-%d %H:%M:%S'),
+                                      True,
+                                      True)
+
+
 def overlap_mba():
-    return print_overlap_of_algorithm("MBA", output_directory + "/file_pairs_mba.csv", output_directory + "/mba.csv")
+    return print_overlap_of_algorithm("MBA",
+                                      find_pairs(output_directory + "/file_pairs_mba.csv"),
+                                      find_pairs_with_date_range(output_directory + "/mba.csv", '%Y-%m-%d %H:%M:%S'),
+                                      True,
+                                      True)
 
 
+def overlap_fo():
+    return print_overlap_of_algorithm("FO",
+                                      find_pairs(input_directory + "/file_pairs.csv"),
+                                      find_pairs_with_date_range(input_directory + "/cochanges.csv", '%d-%m-%Y'),
+                                      True,
+                                      True)
 
-def print_overlap_fo():
-    class_level_analyzer = ClassFOAnalysis()
-    print("--- Overlap Fuzzy Overlap co-changes and smells: ---")
-    smelling_co_changing_pairs, smelly_pairs, fo_cc_pairs, fo_all_pairs = class_level_analyzer.get_pairs()
-    relevant_smelly_pairs = smelly_pairs.intersection(fo_all_pairs)
-
-    print("FO all pairs:\t\t", len(fo_all_pairs))
-    print("FO co-change pairs:\t\t", len(fo_cc_pairs))
-    print("All smell pairs:\t\t", len(smelly_pairs))
-    print("Relevant smell pairs:\t\t", len(relevant_smelly_pairs))
-    print("Overlapping pairs:\t\t", len(smelling_co_changing_pairs))
-    print("Overlap ratio:\t\t", 0 if len(relevant_smelly_pairs) == 0 else 100 * (len(smelling_co_changing_pairs) / len(relevant_smelly_pairs)))
-    print("overlapping pairs:")
-    for pair in smelling_co_changing_pairs:
-        print(pair[0], ", ", pair[1])
-    return smelling_co_changing_pairs
