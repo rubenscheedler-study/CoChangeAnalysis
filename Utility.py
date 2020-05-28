@@ -1,4 +1,5 @@
 import datetime
+import os
 from functools import reduce
 from itertools import combinations
 import numpy as np
@@ -237,3 +238,10 @@ def split_into_chunks(df, chunk_size):
 def get_twin_tuples(lst):
     return [(x, x) for x in lst]
 
+
+def read_or_create_csv(path_to_csv):
+    if not os.path.isfile(path_to_csv):
+        f = open(path_to_csv, "w+")
+        f.close()
+
+    return pd.read_csv(path_to_csv)
