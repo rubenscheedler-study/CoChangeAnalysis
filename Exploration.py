@@ -1,5 +1,6 @@
 import datetime
 
+import numpy as np
 import pandas as pd
 from matplotlib_venn import venn3, venn2
 
@@ -28,7 +29,8 @@ def calculate_smell_co_change_overlaps():
 
 def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, include_class_level=True, include_package_level=True):
     print("--- Overlap ", name, " co-changes and smells: ---")
-
+    all_pairs_unsorted['package1'].replace('', np.nan, inplace=True)
+    all_pairs_unsorted['package2'].replace('', np.nan, inplace=True)
     all_pairs_unsorted.dropna(inplace=True)
     co_changes_unsorted.dropna(inplace=True)
     all_pairs_df = order_package1_and_package2(order_file1_and_file2(all_pairs_unsorted))
@@ -38,20 +40,19 @@ def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, in
     if include_class_level:
         class_smell_pairs_with_date = order_file1_and_file2(get_project_class_smells_in_range())  # df: file1, file2
         class_smell_pairs_with_date = class_smell_pairs_with_date.drop_duplicates(subset=['file1', 'file2'])
-        # For performance, set index of tables
-        class_smell_pairs_with_date.set_index(['file1', 'file2'])
-        all_pairs_df.set_index(['file1', 'file2'])
+
         class_smell_pairs_with_date = analyzer.perform_chunkified_pair_join(all_pairs_df, class_smell_pairs_with_date, level='file', compare_dates=False)
 
     package_smell_pairs_with_date = pd.DataFrame(columns=['file1', 'file2'])
     if include_package_level:
         package_smell_pairs_with_date = order_package1_and_package2(get_project_package_smells_in_range())  # df: package1, package2
-        # For performance, set index of tables
-        package_smell_pairs_with_date.set_index(['package1', 'package2'])
-        all_pairs_df.set_index(['package1', 'package2'])
 
         package_smell_pairs_with_date = analyzer.perform_chunkified_pair_join(all_pairs_df, package_smell_pairs_with_date, level='package', compare_dates=False)
-        package_smell_pairs_with_date = package_smell_pairs_with_date.drop_duplicates(subset=['file1', 'file2'])
+        package_smell_pairs_with_date['package1'].replace('', np.nan, inplace=True)
+        package_smell_pairs_with_date['package2'].replace('', np.nan, inplace=True)
+        package_smell_pairs_with_date.dropna(inplace=True)
+
+        package_smell_pairs_with_date = package_smell_pairs_with_date.drop_duplicates(subset=['package1', 'package2'])
 
     # Combine the pairs
     smell_pairs_with_date = pd.DataFrame()

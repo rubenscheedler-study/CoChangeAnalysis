@@ -53,7 +53,7 @@ def hyper_param_analysis():
 # generate_mba_analysis_files()
 
 
-run_exploration()
+#run_exploration()
 
 #cfa = ClassFOAnalysis()
 #cfa.execute()
@@ -64,8 +64,8 @@ run_exploration()
 #comfa = CombinedFOAnalysis()
 #comfa.execute()
 
-#start = time.time()
-#pcs = get_project_class_smells_in_range()
-#end = time.time()
-#print(end - start, " seconds elapsed")
+start = time.time()
+run_exploration()
+end = time.time()
+print(end - start, " seconds elapsed")
 
