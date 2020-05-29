@@ -1,23 +1,18 @@
-import datetime
-
-import numpy as np
 import pandas as pd
 from matplotlib_venn import venn3, venn2
 
-from FOAnalyzer import FOAnalyzer
-from ClassFOAnalysis import ClassFOAnalysis
-from PackageFOAnalysis import PackageFOAnalysis
-from Utility import read_filename_pairs, get_project_class_smells_in_range, sort_tuple_elements, order_file1_and_file2, \
-    find_pairs_with_date_range, find_pairs, to_unique_file_tuples, get_project_package_smells_in_range, order_package1_and_package2, read_or_create_csv
-from config import output_directory, input_directory, results_file, project_name
+from Analyzer import Analyzer
+from Utility import get_project_class_smells_in_range, order_file1_and_file2, \
+    find_pairs_with_date_range, find_pairs, to_unique_file_tuples, get_project_package_smells_in_range, order_package1_and_package2
+from config import output_directory, input_directory, project_name
 from matplotlib import pyplot as plt
 
+from helper_scripts.join_helper import JoinHelper
 from helper_scripts.pickle_helper import load_pickle, save_pickle
 from helper_scripts.results_helper import add_result
 
-analyzer = FOAnalyzer()
-class_level_analyzer = ClassFOAnalysis()
-package_level_analyzer = PackageFOAnalysis()
+analyzer = Analyzer()
+join_helper = JoinHelper()
 def run_exploration():
     calculate_smell_co_change_overlaps()
 
@@ -43,7 +38,7 @@ def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, in
         if class_smell_pairs_with_date is None:
             class_smell_pairs_with_date = order_file1_and_file2(get_project_class_smells_in_range())  # df: file1, file2
             # Find file pairs that are part of the same class-level smell:
-            class_smell_pairs_with_date = analyzer.perform_chunkified_pair_join(all_pairs_df, class_smell_pairs_with_date, level='file', compare_dates=False)
+            class_smell_pairs_with_date = join_helper.perform_chunkified_pair_join(all_pairs_df, class_smell_pairs_with_date, level='file', compare_dates=False)
             save_pickle(class_smell_pairs_with_date, "class_smell_pairs_with_date")
 
 
@@ -53,7 +48,7 @@ def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, in
         if package_smell_pairs_with_date is None:
             package_smell_pairs_with_date = order_package1_and_package2(get_project_package_smells_in_range())  # df: package1, package2
             # We want to find file pairs whose package are part of the same smell:
-            package_smell_pairs_with_date = analyzer.perform_chunkified_pair_join(all_pairs_df, package_smell_pairs_with_date, level='package', compare_dates=False)
+            package_smell_pairs_with_date = join_helper.perform_chunkified_pair_join(all_pairs_df, package_smell_pairs_with_date, level='package', compare_dates=False)
             # Note: we are interested in (file1, file2) in package_smell_pairs
 
             save_pickle(package_smell_pairs_with_date, "package_smell_pairs_with_date")
@@ -68,7 +63,7 @@ def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, in
 
     relevant_smelly_pairs = set(distinct_smelly_pairs).intersection(all_file_pair_tuples)
 
-    overlapping_pairs = to_unique_file_tuples(analyzer.perform_chunkified_pair_join(cc_pairs_df, smell_pairs_with_date))
+    overlapping_pairs = to_unique_file_tuples(join_helper.perform_chunkified_pair_join(cc_pairs_df, smell_pairs_with_date))
 
     print(name, " all pairs:\t\t", len(all_pairs_df))
     print(name, " co-change pairs:\t\t", len(cc_pairs_df))

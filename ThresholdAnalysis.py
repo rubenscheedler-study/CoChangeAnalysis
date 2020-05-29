@@ -11,9 +11,6 @@ def threshold_distribution():
     # get highest threshold
     max_threshold = max(thresholdData['threshold'])
     thresholds = sorted(thresholdData['threshold'])
-    #plt.hist(thresholds, bins=range(0, max_threshold + 1))
-    #plt.title("Cochange match count distribution")
-    #plt.show()
     print("----threshold results----")
     print("quartile values:")
     firstquartile = np.percentile(thresholds, 25)
