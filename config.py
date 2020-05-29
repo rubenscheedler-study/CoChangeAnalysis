@@ -18,9 +18,10 @@ results_file = "analysis_results.csv"
 
 
 def initialize_config():
-    if __name__ == "__main__":
-        # We are running from the command line. Overwrite the above config attributes with the values below
-        read_args(sys.argv[1:])
+    #if __name__ == "__main__":
+    #print("reading args!")
+    # We are running from the command line. Overwrite the above config attributes with the values below
+    read_args(sys.argv[1:])
 
 
 # Reads arguments from the command line and sets their respective config attributes.
@@ -28,6 +29,7 @@ def read_args(argv):
     # Parse arguments
     try:
         opts, args = getopt.getopt(argv, "p:s:e:o:b:")
+        print(opts)
     except getopt.GetoptError:
         print('<script_name>.py -p <project name> -s <start date dd-mm-yyyy> -e <end date dd-mm-yyyy> -o <owner of the project on git> -b <branch>')
         sys.exit(2)
@@ -35,8 +37,10 @@ def read_args(argv):
     # Store arguments
     for opt, arg in opts:
         if opt == '-p':
+            print("das mien werk")
             global project_name
             project_name = arg
+            print(project_name)
         elif opt == '-s':
             global analysis_start_date
             analysis_start_date = datetime.datetime.strptime(arg, '%d-%m-%Y')
