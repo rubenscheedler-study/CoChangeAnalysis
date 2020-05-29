@@ -132,7 +132,7 @@ def get_project_package_smells_in_range():
     smells[['package1', 'package2']] = pd.DataFrame(smells['affectedPackageCombinations'].tolist(), index=smells.index)
     # The file can contain smells affecting just one file, which ends up resolving to nan. Luckily, they are not relevant so we filter them.
     smell_rows = smells.dropna()
-
+    smell_rows = smell_rows.drop_duplicates()
     # pickle for later reuse
     save_pickle(smell_rows, "package_smells")
 
