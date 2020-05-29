@@ -30,7 +30,7 @@ def calculate_smell_co_change_overlaps():
     #plt.show()
 
 
-def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, include_class_level=True, include_package_level=True):
+def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, include_class_level=True, include_package_level=True, calculate_chi_square=True):
     print("--- Overlap ", name, " co-changes and smells: ---")
     all_pairs_unsorted.dropna(inplace=True)
     co_changes_unsorted.dropna(inplace=True)
@@ -86,6 +86,10 @@ def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, in
     add_result(project_name, name + "_relevant_smelly_pairs", len(relevant_smelly_pairs))
     add_result(project_name, name + "_overlapping_pairs", len(overlapping_pairs))
 
+    if calculate_chi_square:
+        cc_tuples = to_unique_file_tuples(cc_pairs_df)
+        analyzer.analyze_results(overlapping_pairs, distinct_smelly_pairs, cc_tuples, all_file_pair_tuples)
+
     return overlapping_pairs
 
 
@@ -93,6 +97,7 @@ def overlap_dtw():
     return print_overlap_of_algorithm("DTW",
                                       find_pairs(output_directory + "/file_pairs_dtw.csv"),
                                       find_pairs_with_date_range(output_directory + "/dtw.csv", '%Y-%m-%d %H:%M:%S'),
+                                      True,
                                       True,
                                       True)
 
@@ -102,6 +107,7 @@ def overlap_mba():
                                       find_pairs(output_directory + "/file_pairs_mba.csv"),
                                       find_pairs_with_date_range(output_directory + "/mba.csv", '%Y-%m-%d %H:%M:%S'),
                                       True,
+                                      True,
                                       True)
 
 
@@ -109,6 +115,7 @@ def overlap_fo():
     return print_overlap_of_algorithm("FO",
                                       find_pairs(input_directory + "/file_pairs.csv"),
                                       find_pairs_with_date_range(input_directory + "/cochanges.csv", '%d-%m-%Y'),
+                                      True,
                                       True,
                                       True)
 
