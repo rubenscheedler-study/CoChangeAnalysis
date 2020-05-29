@@ -1,5 +1,6 @@
 # Returns all co-changes that have a matching smell. Note: can contain duplicates.
 from Utility import split_into_chunks
+import pandas as pd
 
 
 class JoinHelper:
