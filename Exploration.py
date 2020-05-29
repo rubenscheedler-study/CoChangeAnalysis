@@ -2,14 +2,15 @@ import pandas as pd
 from matplotlib_venn import venn3, venn2
 
 from Analyzer import Analyzer
-from Utility import get_project_class_smells_in_range, order_file1_and_file2, \
-    find_pairs_with_date_range, find_pairs, to_unique_file_tuples, get_project_package_smells_in_range, order_package1_and_package2
+from helper_scripts.file_pair_helper import order_file1_and_file2, order_package1_and_package2, to_unique_file_tuples, \
+    find_pairs_with_date_range, find_pairs
 from config import output_directory, input_directory, project_name
 from matplotlib import pyplot as plt
 
 from helper_scripts.join_helper import JoinHelper
 from helper_scripts.pickle_helper import load_pickle, save_pickle
 from helper_scripts.results_helper import add_result
+from helper_scripts.smell_helper import get_project_class_smells_in_range, get_project_package_smells_in_range
 
 analyzer = Analyzer()
 join_helper = JoinHelper()
