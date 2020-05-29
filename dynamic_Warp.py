@@ -44,7 +44,7 @@ def perform_dtw():
     print("----threshold results DTW----")
     print("quartile values:")
     distances = list(map(lambda x: x.dist, distance_list))
-    visualise_dtw_distances(distances)
+    #visualise_dtw_distances(distances)
     firstquartile = np.percentile(distances, 25)
     median = np.percentile(distances, 50)
     thirdquartile = np.percentile(distances, 75)

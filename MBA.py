@@ -69,14 +69,14 @@ def generate_basket_rules(df):
     conf_0_supp2 = sorted(rules['confidence'])
 
     #TODO: extract to proper function
-    seaborn.violinplot(data=supp0)
-    plt.show()
-    seaborn.violinplot(data=conf_0_supp0)
-    plt.show()
-    seaborn.violinplot(data=supp2)
-    plt.show()
-    seaborn.violinplot(data=conf_0_supp2)
-    plt.show()
+    #seaborn.violinplot(data=supp0)
+    #plt.show()
+    #seaborn.violinplot(data=conf_0_supp0)
+    #plt.show()
+    #seaborn.violinplot(data=supp2)
+    #plt.show()
+    #seaborn.violinplot(data=conf_0_supp2)
+    #plt.show()
 
     print("----threshold results mba confidence after support threshold----")
     print("quartile values:")
