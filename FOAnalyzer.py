@@ -113,5 +113,6 @@ class FOAnalyzer:
                         continue
 
                 processed_chunks.append(match_chunk)
-
+        del chunks1
+        del chunks2
         return pd.concat(processed_chunks) if processed_chunks != [] else pd.DataFrame(columns=[level+'1', level+'2'])

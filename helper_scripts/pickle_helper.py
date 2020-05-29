@@ -4,7 +4,7 @@ from config import output_directory
 
 
 def load_pickle(pickle_key):
-    path = output_directory + "/" + pickle_key + ".p"
+    path = output_directory + "/" + pickle_key + ".pkl"
     if os.path.isfile(path):
         with open(path, "rb") as f:
             try:
@@ -15,5 +15,5 @@ def load_pickle(pickle_key):
 
 
 def save_pickle(object_to_save, pickle_key):
-    path = output_directory + "/" + pickle_key + ".p"
+    path = output_directory + "/" + pickle_key + ".pkl"
     pickle.dump(object_to_save, open(path, "wb"))
