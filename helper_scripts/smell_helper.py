@@ -4,7 +4,6 @@ import pandas as pd
 
 # Looks at {input}/{project}/smell-characteristics-consecOnly.csv
 # Reads all pairs. Filters duplicates and filters out pairs outside the date range set in config.
-from Utility import get_class_from_package, get_twin_tuples
 from config import input_directory, analysis_end_date, analysis_start_date
 from helper_scripts.pickle_helper import load_pickle, save_pickle
 
@@ -52,6 +51,7 @@ def get_project_class_smells_in_range():
 
     return smell_rows
 
+
 # Looks at {input}/{project}/smell-characteristics-consecOnly.csv
 # Reads all pairs. Filters duplicates and filters out pairs outside the date range set in config.
 def get_project_package_smells_in_range():
@@ -77,7 +77,8 @@ def get_project_package_smells_in_range():
     # split into a list (,) and strip the package from each file in that list (.)
     smells['affectedPackagesList'] = smells['affectedElements'].str.split(', ')
     # generate all combinations of affected files from that list
-    smells['affectedPackageCombinations'] = [list(combinations(i, 2)) + get_twin_tuples(i) for i in smells['affectedPackagesList']]
+    smells['affectedPackageCombinations'] = [list(combinations(i, 2)) + get_twin_tuples(i) for i in
+                                             smells['affectedPackagesList']]
     # drop the columns we dont need
     smells = smells[['affectedPackageCombinations', 'parsedVersionDate']]
     # explode the list of combinations into multiple rows
@@ -91,3 +92,27 @@ def get_project_package_smells_in_range():
     save_pickle(smell_rows, "package_smells")
 
     return smell_rows
+
+
+def get_twin_tuples(lst):
+    return [(x, x) for x in lst]
+
+
+# Parses package.package.class$innerclass(.java) to either class or class$innerclass(.java)
+def get_class_from_package(package_file_path, ignore_inner_classes=True):
+    package_file_path = map_path_to_filename(package_file_path)
+    raw_class_name = package_file_path
+
+    if "." in package_file_path:
+        if package_file_path.split(".")[-1] == "java":
+            raw_class_name = package_file_path.split(".")[-2]
+        else:
+            raw_class_name = package_file_path.split(".")[-1]
+
+    if ignore_inner_classes and "$" in raw_class_name:
+        raw_class_name = raw_class_name.split("$")[0]
+    return raw_class_name + ".java"
+
+
+def map_path_to_filename(path):
+    return path.split("/")[-1]

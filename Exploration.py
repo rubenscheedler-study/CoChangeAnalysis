@@ -2,7 +2,8 @@ import pandas as pd
 from matplotlib_venn import venn3, venn2
 
 from Analyzer import Analyzer
-from Utility import order_file1_and_file2, find_pairs_with_date_range, find_pairs, to_unique_file_tuples, order_package1_and_package2
+from helper_scripts.file_pair_helper import order_file1_and_file2, order_package1_and_package2, to_unique_file_tuples, \
+    find_pairs_with_date_range, find_pairs
 from config import output_directory, input_directory, project_name
 from matplotlib import pyplot as plt
 

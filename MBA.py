@@ -8,11 +8,11 @@ from mlxtend.preprocessing import TransactionEncoder
 import numpy as np
 import matplotlib.pyplot as plt
 
-from Utility import get_class_from_package
 from config import output_directory
 from helper_scripts.Commit_date_helper import add_file_dates
 from helper_scripts.components_helper import get_components
 from helper_scripts.file_pair_helper import filter_duplicate_file_pairs, generate_all_pairs
+from helper_scripts.smell_helper import get_class_from_package
 
 
 def perform_mba():

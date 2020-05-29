@@ -1,5 +1,4 @@
 # Returns all co-changes that have a matching smell. Note: can contain duplicates.
-from Utility import split_into_chunks
 import pandas as pd
 
 
@@ -29,3 +28,6 @@ class JoinHelper:
         del chunks2
         return pd.concat(processed_chunks) if processed_chunks != [] else pd.DataFrame(
             columns=[level + '1', level + '2'])
+
+def split_into_chunks(df, chunk_size):
+    return [df[i:i + chunk_size] for i in range(0, df.shape[0], chunk_size)]

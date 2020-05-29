@@ -2,7 +2,6 @@ import os
 
 import numpy as np
 
-from Utility import read_or_create_csv
 from config import results_file
 import pandas as pd
 
