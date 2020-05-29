@@ -97,6 +97,7 @@ class FOAnalyzer:
 
         chunks1 = split_into_chunks(df1, 10000)  # df's with <= 1000 rows
         chunks2 = split_into_chunks(df2, 10000)
+
         processed_chunks = []
         for cc_chunk in chunks1:
             for smell_chunk in chunks2:
@@ -113,5 +114,6 @@ class FOAnalyzer:
                         continue
 
                 processed_chunks.append(match_chunk)
-
+        del chunks1
+        del chunks2
         return pd.concat(processed_chunks) if processed_chunks != [] else pd.DataFrame(columns=[level+'1', level+'2'])

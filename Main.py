@@ -47,13 +47,13 @@ def hyper_param_analysis():
 # threshold_distribution()
 
 
-# generate_dtw_analysis_files()
+generate_dtw_analysis_files()
 
 
-# generate_mba_analysis_files()
+generate_mba_analysis_files()
 
 
-#run_exploration()
+run_exploration()
 
 #cfa = ClassFOAnalysis()
 #cfa.execute()
@@ -64,8 +64,8 @@ def hyper_param_analysis():
 #comfa = CombinedFOAnalysis()
 #comfa.execute()
 
-start = time.time()
-run_exploration()
-end = time.time()
-print(end - start, " seconds elapsed")
+#start = time.time()
+#run_exploration()
+#end = time.time()
+#print(end - start, " seconds elapsed")
 
