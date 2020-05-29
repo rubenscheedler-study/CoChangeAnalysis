@@ -84,7 +84,7 @@ def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, in
 
     if calculate_chi_square:
         cc_tuples = to_unique_file_tuples(cc_pairs_df)
-        analyzer.analyze_results(overlapping_pairs, distinct_smelly_pairs, cc_tuples, all_file_pair_tuples)
+        analyzer.analyze_results(name, overlapping_pairs, distinct_smelly_pairs, cc_tuples, all_file_pair_tuples)
 
     return overlapping_pairs
 
