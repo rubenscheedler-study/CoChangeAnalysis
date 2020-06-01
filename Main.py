@@ -7,9 +7,7 @@ from hyperparameter_analysis.CommitsPerCommitDay import commits_per_commitday
 from hyperparameter_analysis.Commits_over_lifetime import commits_over_lifetime
 from Exploration import run_exploration
 from hyperparameter_analysis.FilesPerCommit import files_per_commit_information
-#from MBA import generate_mba_analysis_files
 from hyperparameter_analysis.TimeBetweenCommits import time_between_commits
-#from dynamic_Warp import generate_dtw_analysis_files
 from dynamic_Warp import generate_dtw_analysis_files
 
 
@@ -33,17 +31,14 @@ def hyper_param_analysis():
     # Get the number of commits per day on which there were commits
     commits_per_commitday(repo, config.branch)
 
+
+def generate_analysis():
+    generate_dtw_analysis_files()
+    generate_mba_analysis_files()
+
 # hyper_param_analysis()
-
-
 # threshold_distribution()
-
-
-generate_dtw_analysis_files()
-
-
-generate_mba_analysis_files()
-
+# generate_analysis
 
 run_exploration()
 
