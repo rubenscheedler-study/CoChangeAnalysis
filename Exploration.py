@@ -1,3 +1,5 @@
+import datetime
+
 import pandas as pd
 from matplotlib_venn import venn3, venn2
 
@@ -33,11 +35,15 @@ def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, in
     all_pairs_df = order_package1_and_package2(order_file1_and_file2(all_pairs_unsorted))
     cc_pairs_df = order_package1_and_package2(order_file1_and_file2(co_changes_unsorted))
 
+    min_first_appeared_date = datetime.date.min
+
     class_smell_pairs_with_date = pd.DataFrame(columns=['file1', 'file2'])
     if include_class_level:
         class_smell_pairs_with_date = load_pickle("class_smell_pairs_with_date")
         if class_smell_pairs_with_date is None:
             class_smell_pairs_with_date = order_file1_and_file2(get_project_class_smells_in_range())  # df: file1, file2
+            # Update min date
+            min_first_appeared_date = min([min_first_appeared_date, class_smell_pairs_with_date.parsedVersionDate.min()])
             # Find file pairs that are part of the same class-level smell:
             class_smell_pairs_with_date = join_helper.perform_chunkified_pair_join(all_pairs_df, class_smell_pairs_with_date, level='file', compare_dates=False)
             save_pickle(class_smell_pairs_with_date, "class_smell_pairs_with_date")
@@ -48,6 +54,8 @@ def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, in
         package_smell_pairs_with_date = load_pickle("package_smell_pairs_with_date")
         if package_smell_pairs_with_date is None:
             package_smell_pairs_with_date = order_package1_and_package2(get_project_package_smells_in_range())  # df: package1, package2
+            # Update min date
+            min_first_appeared_date = min([min_first_appeared_date, package_smell_pairs_with_date.parsedVersionDate.min()])
             # We want to find file pairs whose package are part of the same smell:
             package_smell_pairs_with_date = join_helper.perform_chunkified_pair_join(all_pairs_df, package_smell_pairs_with_date, level='package', compare_dates=False)
             # Note: we are interested in (file1, file2) in package_smell_pairs
@@ -58,6 +66,7 @@ def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, in
     smell_pairs_with_date = pd.DataFrame()
     smell_pairs_with_date = smell_pairs_with_date.append(class_smell_pairs_with_date, sort=False)
     smell_pairs_with_date = smell_pairs_with_date.append(package_smell_pairs_with_date, sort=False)
+    # Before we lose the dates TODO
     distinct_smelly_pairs = to_unique_file_tuples(smell_pairs_with_date)  # (file1, file2)
 
     all_file_pair_tuples = set(all_pairs_df.apply(lambda row: (row.file1, row.file2), axis=1))
@@ -115,3 +124,6 @@ def overlap_fo():
                                       True,
                                       True)
 
+#
+# Time of smell vs time of co-change
+#

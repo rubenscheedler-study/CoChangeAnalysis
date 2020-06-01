@@ -39,11 +39,11 @@ def generate_analysis():
 
 # hyper_param_analysis()
 # threshold_distribution()
-# generate_analysis()
+generate_analysis()
 
 # run_exploration()
 
-result_analysis()
+#result_analysis()
 
 #start = time.time()
 #run_exploration()
