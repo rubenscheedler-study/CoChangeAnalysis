@@ -3,6 +3,7 @@ from functools import reduce
 
 import matplotlib.pyplot as plt
 import numpy as np
+import seaborn
 
 
 def files_per_commit_information(repo, branch):
@@ -27,8 +28,8 @@ def files_per_commit_information(repo, branch):
     # for every commit define A = files affected
     # calc A over 2
 
-    plt.hist(file_counts, bins=range(0, max_file_count+1))
-    plt.title("Histogram of files affected per commit")
+    seaborn.violinplot(file_counts)
+    plt.title("Violin boxplot of files affected per commit")
     plt.show()
 
 

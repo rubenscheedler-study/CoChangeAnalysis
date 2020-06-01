@@ -2,6 +2,8 @@ import csv
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import seaborn
+import matplotlib.pyplot as plt
 
 from config import input_directory
 
@@ -19,5 +21,8 @@ def threshold_distribution():
     print("90% at threshold: ", np.percentile(thresholds, 90))
     print("95% at threshold: ", np.percentile(thresholds, 95))
     print(firstquartile, median, thirdquartile)
+    seaborn.violinplot(thresholds)
+    plt.title("Violin boxplot of thresholds")
+    plt.show()
 
 
