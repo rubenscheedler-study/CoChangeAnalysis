@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import seaborn
+
 
 def time_between_commits(repo, branch):
     print("---- Time between commits ----")
@@ -7,9 +9,8 @@ def time_between_commits(repo, branch):
     commits = list(repo.iter_commits(branch))
     # Calculate the time between commits in minutes
     commitDifs = [round((commits[i].committed_datetime.timestamp() - commits[i+1].committed_datetime.timestamp())/60) for i in range(len(commits)-1)]
-    plt.hist(commitDifs, bins='auto')
-    plt.title("Histogram committimedifference")
-    plt.yscale("log")
+    seaborn.violinplot(commitDifs)
+    plt.title("Violin boxplot of time between commits in minutes")
     plt.show()
 
     firstquartile = np.percentile(commitDifs, 25)
