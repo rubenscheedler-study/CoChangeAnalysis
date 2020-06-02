@@ -6,7 +6,7 @@ from matplotlib_venn import venn3, venn2
 from Analyzer import Analyzer
 from helper_scripts.file_pair_helper import order_file1_and_file2, order_package1_and_package2, to_unique_file_tuples, \
     find_pairs_with_date_range, find_pairs
-from config import output_directory, input_directory, project_name
+from config import output_directory, input_directory, project_name, analysis_start_date
 from matplotlib import pyplot as plt
 
 from helper_scripts.join_helper import JoinHelper
@@ -34,7 +34,7 @@ def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, in
     co_changes_unsorted.dropna(inplace=True)
     all_pairs_df = order_package1_and_package2(order_file1_and_file2(all_pairs_unsorted))
     cc_pairs_df = order_package1_and_package2(order_file1_and_file2(co_changes_unsorted))
-
+    # parse start and enddate
     min_first_appeared_date = datetime.date.min
 
     class_smell_pairs_with_date = pd.DataFrame(columns=['file1', 'file2'])
@@ -72,8 +72,13 @@ def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, in
     all_file_pair_tuples = set(all_pairs_df.apply(lambda row: (row.file1, row.file2), axis=1))
 
     relevant_smelly_pairs = set(distinct_smelly_pairs).intersection(all_file_pair_tuples)
-
-    overlapping_pairs = to_unique_file_tuples(join_helper.perform_chunkified_pair_join(cc_pairs_df, smell_pairs_with_date))
+    # Overlapping pairs contains at least: file1, file2, parsedSmellFirstDate, parsedSmellLastDate, parsedStartDate, parsedEndDate
+    overlapping_cc_smells = join_helper.perform_chunkified_pair_join(cc_pairs_df, smell_pairs_with_date)
+    print("unfiltered:", len(overlapping_cc_smells))
+    sells_from_start_mask = overlapping_cc_smells[overlapping_cc_smells.apply(lambda x: x['parsedSmellFirstDate'].date() == analysis_start_date.date(), axis=1)]
+    print("filtered smells: ", len(sells_from_start_mask))  # Note: this counts joined rows
+    print("filtered ccs: ", len(overlapping_cc_smells[overlapping_cc_smells.apply(lambda x: x['parsedStartDate'].date() == analysis_start_date.date(), axis=1)]))
+    overlapping_pairs = to_unique_file_tuples(overlapping_cc_smells)
 
     print(name, " all pairs:\t\t", len(all_pairs_df))
     print(name, " co-change pairs:\t\t", len(cc_pairs_df))
