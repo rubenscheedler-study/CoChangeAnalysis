@@ -37,7 +37,7 @@ def get_project_class_smells_in_range():
     # generate all combinations of affected files from that list
     smells['affectedElementCombinations'] = [list(combinations(i, 2)) for i in smells['affectedElementsList']]
     # drop the columns we dont need
-    smells = smells[['affectedElementCombinations', 'parsedVersionDate', 'parsedSmellFirstDate', 'parsedSmellLastDate']]
+    smells = smells[['affectedElementCombinations', 'parsedVersionDate', 'parsedSmellFirstDate', 'parsedSmellLastDate', 'uniqueSmellID']]
     # explode the list of combinations into multiple rows
     smells = smells.explode('affectedElementCombinations')
     # split the combination tuples into two columns
@@ -84,7 +84,7 @@ def get_project_package_smells_in_range():
     smells['affectedPackageCombinations'] = [list(combinations(i, 2)) + get_twin_tuples(i) for i in
                                              smells['affectedPackagesList']]
     # drop the columns we dont need
-    smells = smells[['affectedPackageCombinations', 'parsedVersionDate', 'parsedSmellFirstDate', 'parsedSmellLastDate']]
+    smells = smells[['affectedPackageCombinations', 'parsedVersionDate', 'parsedSmellFirstDate', 'parsedSmellLastDate', 'uniqueSmellID']]
     # explode the list of combinations into multiple rows
     smells = smells.explode('affectedPackageCombinations')
     # split the combination tuples into two columns

@@ -28,22 +28,19 @@ def calculate_smell_co_change_overlaps():
     #plt.show()
 
 
-def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, include_class_level=True, include_package_level=True, calculate_chi_square=True):
+def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, include_class_level=True, include_package_level=True, calculate_chi_square=True, calculate_precede_values=True):
     print("--- Overlap ", name, " co-changes and smells: ---")
     all_pairs_unsorted.dropna(inplace=True)
     co_changes_unsorted.dropna(inplace=True)
     all_pairs_df = order_package1_and_package2(order_file1_and_file2(all_pairs_unsorted))
     cc_pairs_df = order_package1_and_package2(order_file1_and_file2(co_changes_unsorted))
     # parse start and enddate
-    min_first_appeared_date = datetime.date.min
 
     class_smell_pairs_with_date = pd.DataFrame(columns=['file1', 'file2'])
     if include_class_level:
         class_smell_pairs_with_date = load_pickle("class_smell_pairs_with_date")
         if class_smell_pairs_with_date is None:
             class_smell_pairs_with_date = order_file1_and_file2(get_project_class_smells_in_range())  # df: file1, file2
-            # Update min date
-            min_first_appeared_date = min([min_first_appeared_date, class_smell_pairs_with_date.parsedVersionDate.min()])
             # Find file pairs that are part of the same class-level smell:
             class_smell_pairs_with_date = join_helper.perform_chunkified_pair_join(all_pairs_df, class_smell_pairs_with_date, level='file', compare_dates=False)
             save_pickle(class_smell_pairs_with_date, "class_smell_pairs_with_date")
@@ -54,8 +51,6 @@ def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, in
         package_smell_pairs_with_date = load_pickle("package_smell_pairs_with_date")
         if package_smell_pairs_with_date is None:
             package_smell_pairs_with_date = order_package1_and_package2(get_project_package_smells_in_range())  # df: package1, package2
-            # Update min date
-            min_first_appeared_date = min([min_first_appeared_date, package_smell_pairs_with_date.parsedVersionDate.min()])
             # We want to find file pairs whose package are part of the same smell:
             package_smell_pairs_with_date = join_helper.perform_chunkified_pair_join(all_pairs_df, package_smell_pairs_with_date, level='package', compare_dates=False)
             # Note: we are interested in (file1, file2) in package_smell_pairs
@@ -66,7 +61,7 @@ def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, in
     smell_pairs_with_date = pd.DataFrame()
     smell_pairs_with_date = smell_pairs_with_date.append(class_smell_pairs_with_date, sort=False)
     smell_pairs_with_date = smell_pairs_with_date.append(package_smell_pairs_with_date, sort=False)
-    # Before we lose the dates TODO
+
     distinct_smelly_pairs = to_unique_file_tuples(smell_pairs_with_date)  # (file1, file2)
 
     all_file_pair_tuples = set(all_pairs_df.apply(lambda row: (row.file1, row.file2), axis=1))
@@ -74,10 +69,36 @@ def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, in
     relevant_smelly_pairs = set(distinct_smelly_pairs).intersection(all_file_pair_tuples)
     # Overlapping pairs contains at least: file1, file2, parsedSmellFirstDate, parsedSmellLastDate, parsedStartDate, parsedEndDate
     overlapping_cc_smells = join_helper.perform_chunkified_pair_join(cc_pairs_df, smell_pairs_with_date)
-    print("unfiltered:", len(overlapping_cc_smells))
-    sells_from_start_mask = overlapping_cc_smells[overlapping_cc_smells.apply(lambda x: x['parsedSmellFirstDate'].date() == analysis_start_date.date(), axis=1)]
-    print("filtered smells: ", len(sells_from_start_mask))  # Note: this counts joined rows
-    print("filtered ccs: ", len(overlapping_cc_smells[overlapping_cc_smells.apply(lambda x: x['parsedStartDate'].date() == analysis_start_date.date(), axis=1)]))
+    overlapping_cc_smells_2 = overlapping_cc_smells.copy()
+    # RQ3: What happens first: smell or co-change?
+    if calculate_precede_values:
+        print("unfiltered:", len(overlapping_cc_smells_2))
+        smells_from_start_mask = overlapping_cc_smells_2.apply(lambda x: x['parsedSmellFirstDate'].date() != analysis_start_date.date(), axis=1)
+        overlapping_cc_smells_2 = overlapping_cc_smells_2[smells_from_start_mask]
+        print("after filtering smells: ", len(overlapping_cc_smells_2))  # Note: this counts joined rows
+        ccs_from_start_mask = overlapping_cc_smells_2.apply(lambda x: x['parsedStartDate'].date() != analysis_start_date.date(), axis=1)
+        overlapping_cc_smells_2 = overlapping_cc_smells_2[ccs_from_start_mask]
+        print("filtered ccs: ", len(overlapping_cc_smells_2))
+
+        # Compare the two start dates and count which is earlier how often.
+        smell_earlier_mask = overlapping_cc_smells_2.apply(lambda x: x['parsedSmellFirstDate'].date() < x['parsedStartDate'].date(), axis=1)
+        earlier_smell_rows = overlapping_cc_smells_2[smell_earlier_mask]
+        cc_earlier_mask = overlapping_cc_smells_2.apply(lambda x: x['parsedStartDate'].date() < x['parsedSmellFirstDate'].date(), axis=1)
+        earlier_ccs_rows = overlapping_cc_smells_2[cc_earlier_mask]
+        tied_mask = overlapping_cc_smells_2.apply(lambda x: x['parsedStartDate'].date() == x['parsedSmellFirstDate'].date(), axis=1)
+        tied_rows = overlapping_cc_smells_2[tied_mask]
+        earlier_smell_pairs = to_unique_file_tuples(earlier_smell_rows)
+        earlier_ccs_pairs = to_unique_file_tuples(earlier_ccs_rows)
+        tied_pairs = to_unique_file_tuples(tied_rows)
+
+        add_result(project_name, name + "_earlier_smell_pairs", len(earlier_smell_pairs))
+        add_result(project_name, name + "_earlier_ccs_pairs", len(earlier_ccs_pairs))
+        add_result(project_name, name + "_tied_pairs", len(tied_pairs))
+
+    # Store the balance in results
+    add_result(project_name, name + "_all_pairs", len(all_pairs_df))
+    add_result(project_name, name + "_all_pairs", len(all_pairs_df))
+
     overlapping_pairs = to_unique_file_tuples(overlapping_cc_smells)
 
     print(name, " all pairs:\t\t", len(all_pairs_df))
@@ -109,7 +130,8 @@ def overlap_dtw():
                                       find_pairs_with_date_range(output_directory + "/dtw.csv", '%Y-%m-%d %H:%M:%S'),
                                       True,
                                       True,
-                                      True)
+                                      True,
+                                      False)
 
 
 def overlap_mba():
@@ -118,7 +140,7 @@ def overlap_mba():
                                       find_pairs_with_date_range(output_directory + "/mba.csv", '%Y-%m-%d %H:%M:%S'),
                                       True,
                                       True,
-                                      True)
+                                      False)
 
 
 def overlap_fo():
@@ -127,7 +149,7 @@ def overlap_fo():
                                       find_pairs_with_date_range(input_directory + "/cochanges.csv", '%d-%m-%Y'),
                                       True,
                                       True,
-                                      True)
+                                      False)
 
 #
 # Time of smell vs time of co-change

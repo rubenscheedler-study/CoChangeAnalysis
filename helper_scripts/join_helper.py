@@ -27,7 +27,7 @@ class JoinHelper:
         del chunks1
         del chunks2
         return pd.concat(processed_chunks) if processed_chunks != [] else pd.DataFrame(
-            columns=[level + '1', level + '2'])
+            columns=[level + '1', level + '2', 'parsedSmellFirstDate', 'parsedSmellLastDate', 'parsedStartDate', 'parsedEndDate'])
 
 def split_into_chunks(df, chunk_size):
     return [df[i:i + chunk_size] for i in range(0, df.shape[0], chunk_size)]
