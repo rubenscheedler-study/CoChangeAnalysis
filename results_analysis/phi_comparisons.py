@@ -9,7 +9,7 @@ def phi_vs_time_range():
     result_df = get_analysis_results()
     result_df['analysis_range'] = [x.days for x in result_df.analysis_end_date - result_df.analysis_start_date]
 
-    domains = result_df.Domain.unique()
+    '''domains = result_df.Domain.unique()
 
     for domain in domains:
         domain_rows = result_df[result_df.Domain == domain]
@@ -24,6 +24,37 @@ def phi_vs_time_range():
         label_points(domain_rows.analysis_range, domain_rows.MBA_chi_phi, domain_rows.project, ax1)
         label_points(domain_rows.analysis_range, domain_rows.FO_chi_phi, domain_rows.project, ax1)
         plt.show()
+    commitSizeMean = result_df.commits_analyzed.mean()
+    sub_threshold = result_df[result_df.commits_analyzed < commitSizeMean]
+    ax1 = sub_threshold.plot(kind='scatter', x='analysis_range', y='DTW_chi_phi', color='blue',
+                           title="Phi-values set out against project analysis interval for below mean",
+                           legend=True)
+    ax2 = sub_threshold.plot(kind='scatter', x='analysis_range', y='MBA_chi_phi', color='green', ax=ax1)
+    ax3 = sub_threshold.plot(kind='scatter', x='analysis_range', y='FO_chi_phi', color='orange', ax=ax1)
+    ax1.set_xlabel("Length of analysis time interval", fontsize=12)
+    ax1.set_ylabel("Phi-value", fontsize=12)
+
+    label_points(sub_threshold.analysis_range, sub_threshold.DTW_chi_phi, sub_threshold.project, ax1)
+    label_points(sub_threshold.analysis_range, sub_threshold.MBA_chi_phi, sub_threshold.project, ax1)
+    label_points(sub_threshold.analysis_range, sub_threshold.FO_chi_phi, sub_threshold.project, ax1)
+    plt.show()
+
+
+    super_threshold = result_df[result_df.commits_analyzed >= commitSizeMean]
+    ax1 = super_threshold.plot(kind='scatter', x='analysis_range', y='DTW_chi_phi', color='blue',
+                           title="Phi-values set out against project analysis interval above mean",
+                           legend=True)
+    ax2 = super_threshold.plot(kind='scatter', x='analysis_range', y='MBA_chi_phi', color='green', ax=ax1)
+    ax3 = super_threshold.plot(kind='scatter', x='analysis_range', y='FO_chi_phi', color='orange', ax=ax1)
+    ax1.set_xlabel("Length of analysis time interval", fontsize=12)
+    ax1.set_ylabel("Phi-value", fontsize=12)
+
+    label_points(super_threshold.analysis_range, super_threshold.DTW_chi_phi, super_threshold.project, ax1)
+    label_points(super_threshold.analysis_range, super_threshold.MBA_chi_phi, super_threshold.project, ax1)
+    label_points(super_threshold.analysis_range, super_threshold.FO_chi_phi, super_threshold.project, ax1)
+    plt.show()
+
+    '''
 
     ax1 = result_df.plot(kind='scatter', x='analysis_range', y='DTW_chi_phi', color='blue', title="Phi-values set out against project analysis interval for all projects", legend=True)
     ax2 = result_df.plot(kind='scatter', x='analysis_range', y='MBA_chi_phi', color='green', ax=ax1)

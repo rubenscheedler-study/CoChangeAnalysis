@@ -4,11 +4,11 @@ from results_analysis.project_co_change_counts import algorithm_cc_count_compari
 
 
 def result_analysis():
-    # algorithm_cc_count_comparison()
-    # project_cc_count_comparison()
+    algorithm_cc_count_comparison()
+    project_cc_count_comparison()
     # phi_vs_time_range()
     # phi_vs_all_pairs()
     # phi_vs_commits_analyzed()
     # phi_vs_threshold()
     # phi_vs_cc_ratio()
-    cochanges_over_time()
+    # cochanges_over_time()
