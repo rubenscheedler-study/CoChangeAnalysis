@@ -140,6 +140,7 @@ def overlap_mba():
                                       find_pairs_with_date_range(output_directory + "/mba.csv", '%Y-%m-%d %H:%M:%S'),
                                       True,
                                       True,
+                                      True,
                                       False)
 
 
@@ -147,6 +148,7 @@ def overlap_fo():
     return print_overlap_of_algorithm("FO",
                                       find_pairs(input_directory + "/file_pairs.csv"),
                                       find_pairs_with_date_range(input_directory + "/cochanges.csv", '%d-%m-%Y'),
+                                      True,
                                       True,
                                       True,
                                       False)
