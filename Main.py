@@ -41,9 +41,9 @@ def generate_analysis():
 # threshold_distribution()
 # generate_analysis()
 
-run_exploration()
+# run_exploration()
 
-#result_analysis()
+result_analysis()
 
 #start = time.time()
 #run_exploration()
