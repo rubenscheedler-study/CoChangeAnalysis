@@ -16,4 +16,4 @@ def load_pickle(pickle_key):
 
 def save_pickle(object_to_save, pickle_key):
     path = output_directory + "/" + pickle_key + ".pkl"
-    #pickle.dump(object_to_save, open(path, "wb")) # TODO turn back on
+    pickle.dump(object_to_save, open(path, "wb"))

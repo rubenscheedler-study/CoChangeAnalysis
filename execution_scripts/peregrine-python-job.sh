@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=python-explorations-poispring
+#SBATCH --job-name=python-explorations-roborx
 #SBATCH --mail-type=ALL
 #SBATCH --time=1-12:00
 #SBATCH --mail-user=r.j.scheedler@student.rug.nl

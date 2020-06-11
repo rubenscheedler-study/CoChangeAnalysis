@@ -40,7 +40,7 @@ def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, in
     if include_class_level:
         class_smell_pairs_with_date = load_pickle("class_smell_pairs_with_date")
         if class_smell_pairs_with_date is None:
-            class_smell_pairs_with_date = order_file1_and_file2(get_project_class_smells_in_range())  # df: file1, file2
+            class_smell_pairs_with_date = order_file1_and_file2(get_project_class_smells_in_range(calculate_precede_values))  # df: file1, file2
             # Find file pairs that are part of the same class-level smell:
             class_smell_pairs_with_date = join_helper.perform_chunkified_pair_join(all_pairs_df, class_smell_pairs_with_date, level='file', compare_dates=False)
             save_pickle(class_smell_pairs_with_date, "class_smell_pairs_with_date")
@@ -50,7 +50,7 @@ def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, in
     if include_package_level:
         package_smell_pairs_with_date = load_pickle("package_smell_pairs_with_date")
         if package_smell_pairs_with_date is None:
-            package_smell_pairs_with_date = order_package1_and_package2(get_project_package_smells_in_range())  # df: package1, package2
+            package_smell_pairs_with_date = order_package1_and_package2(get_project_package_smells_in_range(calculate_precede_values))  # df: package1, package2
             # We want to find file pairs whose package are part of the same smell:
             package_smell_pairs_with_date = join_helper.perform_chunkified_pair_join(all_pairs_df, package_smell_pairs_with_date, level='package', compare_dates=False)
             # Note: we are interested in (file1, file2) in package_smell_pairs
@@ -69,9 +69,10 @@ def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, in
     relevant_smelly_pairs = set(distinct_smelly_pairs).intersection(all_file_pair_tuples)
     # Overlapping pairs contains at least: file1, file2, parsedSmellFirstDate, parsedSmellLastDate, parsedStartDate, parsedEndDate
     overlapping_cc_smells = join_helper.perform_chunkified_pair_join(cc_pairs_df, smell_pairs_with_date)
-    overlapping_cc_smells_2 = overlapping_cc_smells.copy()
+
     # RQ3: What happens first: smell or co-change?
     if calculate_precede_values:
+        overlapping_cc_smells_2 = overlapping_cc_smells.copy()
         print("unfiltered:", len(overlapping_cc_smells_2))
         smells_from_start_mask = overlapping_cc_smells_2.apply(lambda x: x['parsedSmellFirstDate'].date() != analysis_start_date.date(), axis=1)
         overlapping_cc_smells_2 = overlapping_cc_smells_2[smells_from_start_mask]

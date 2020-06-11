@@ -8,7 +8,7 @@ from config import input_directory, analysis_end_date, analysis_start_date
 from helper_scripts.pickle_helper import load_pickle, save_pickle
 
 
-def get_project_class_smells_in_range():
+def get_project_class_smells_in_range(include_smell_dates_and_id=False):
     class_smells = load_pickle("class_smells")
     if class_smells is not None:
         return class_smells
@@ -20,8 +20,9 @@ def get_project_class_smells_in_range():
 
     # Add a column for the parsed version date.
     smells['parsedVersionDate'] = pd.to_datetime(smells['versionDate'], format='%d-%m-%Y')
-    smells['parsedSmellFirstDate'] = pd.to_datetime(smells['firstAppearedDate'], format='%d-%m-%Y')
-    smells['parsedSmellLastDate'] = pd.to_datetime(smells['lastDetectedDate'], format='%d-%m-%Y')
+    if include_smell_dates_and_id:
+        smells['parsedSmellFirstDate'] = pd.to_datetime(smells['firstAppearedDate'], format='%d-%m-%Y')
+        smells['parsedSmellLastDate'] = pd.to_datetime(smells['lastDetectedDate'], format='%d-%m-%Y')
     # filter rows on date range
     smells = smells[smells['parsedVersionDate'] <= analysis_end_date]
     smells = smells[analysis_start_date <= smells['parsedVersionDate']]
@@ -37,7 +38,11 @@ def get_project_class_smells_in_range():
     # generate all combinations of affected files from that list
     smells['affectedElementCombinations'] = [list(combinations(i, 2)) for i in smells['affectedElementsList']]
     # drop the columns we dont need
-    smells = smells[['affectedElementCombinations', 'parsedVersionDate', 'parsedSmellFirstDate', 'parsedSmellLastDate', 'uniqueSmellID']]
+    if include_smell_dates_and_id:
+        smells = smells[['affectedElementCombinations', 'parsedVersionDate', 'parsedSmellFirstDate', 'parsedSmellLastDate', 'uniqueSmellID']]
+    else:
+        smells = smells[['affectedElementCombinations', 'parsedVersionDate']]
+
     # explode the list of combinations into multiple rows
     smells = smells.explode('affectedElementCombinations')
     # split the combination tuples into two columns
@@ -56,7 +61,7 @@ def get_project_class_smells_in_range():
 
 # Looks at {input}/{project}/smell-characteristics-consecOnly.csv
 # Reads all pairs. Filters duplicates and filters out pairs outside the date range set in config.
-def get_project_package_smells_in_range():
+def get_project_package_smells_in_range(include_smell_dates_and_id=False):
     package_smells = load_pickle("package_smells")
     if package_smells is not None:
         return package_smells
@@ -66,8 +71,10 @@ def get_project_package_smells_in_range():
 
     # Add a column for the parsed version date.
     smells['parsedVersionDate'] = pd.to_datetime(smells['versionDate'], format='%d-%m-%Y')
-    smells['parsedSmellFirstDate'] = pd.to_datetime(smells['firstAppearedDate'], format='%d-%m-%Y')
-    smells['parsedSmellLastDate'] = pd.to_datetime(smells['lastDetectedDate'], format='%d-%m-%Y')
+    if include_smell_dates_and_id:
+        smells['parsedSmellFirstDate'] = pd.to_datetime(smells['firstAppearedDate'], format='%d-%m-%Y')
+        smells['parsedSmellLastDate'] = pd.to_datetime(smells['lastDetectedDate'], format='%d-%m-%Y')
+
     # filter rows on date range
     smells = smells[smells['parsedVersionDate'] <= analysis_end_date]
     smells = smells[analysis_start_date <= smells['parsedVersionDate']]
@@ -84,7 +91,11 @@ def get_project_package_smells_in_range():
     smells['affectedPackageCombinations'] = [list(combinations(i, 2)) + get_twin_tuples(i) for i in
                                              smells['affectedPackagesList']]
     # drop the columns we dont need
-    smells = smells[['affectedPackageCombinations', 'parsedVersionDate', 'parsedSmellFirstDate', 'parsedSmellLastDate', 'uniqueSmellID']]
+    if include_smell_dates_and_id:
+        smells = smells[['affectedPackageCombinations', 'parsedVersionDate', 'parsedSmellFirstDate', 'parsedSmellLastDate', 'uniqueSmellID']]
+    else:
+        smells = smells[['affectedPackageCombinations', 'parsedVersionDate']]
+
     # explode the list of combinations into multiple rows
     smells = smells.explode('affectedPackageCombinations')
     # split the combination tuples into two columns
