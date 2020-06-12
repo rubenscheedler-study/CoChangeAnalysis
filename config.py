@@ -16,7 +16,7 @@ branch = 'master'
 
 
 
-
+api_key_github = 'a0b658d0dc9342b2fe5ba236ec4f2d5a29ef85dc'
 git_project_owner = "unknown_owner"  # Only used for the command line initialization
 results_file = "analysis_results.csv"
 

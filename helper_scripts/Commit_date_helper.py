@@ -1,11 +1,11 @@
 from github import Github
 
 import config
-from config import input_directory
+from config import input_directory, api_key_github
 import pandas as pd
 from datetime import datetime
 
-g = Github('a0b658d0dc9342b2fe5ba236ec4f2d5a29ef85dc')
+g = Github(api_key_github)
 repo = g.get_repo(config.git_repo)
 # get all version we have based on the smells with their date
 smell_pd = pd.read_csv(input_directory + "/smell-characteristics-consecOnly.csv")[['version', 'versionDate']]
