@@ -56,6 +56,10 @@ class Analyzer:
         print("smelling_non_co_changing_pairs: " + str(smelling_non_co_changing_pairs))
         print("smelling_co_changing_pairs: " + str(smelling_co_changing_pairs))
 
+        if non_smelling_non_co_changing_pairs == 0 or non_smelling_co_changing_pairs == 0 or smelling_non_co_changing_pairs == 0 or smelling_co_changing_pairs == 0:
+            print('Cannot calculate chi2 due to zero in table')
+            return
+
         # Calculate chi2
         chi2_stat, p_val, dof, ex = stats.chi2_contingency([[non_smelling_non_co_changing_pairs, non_smelling_co_changing_pairs], [smelling_non_co_changing_pairs, smelling_co_changing_pairs]])
         # calculate critical value

@@ -55,16 +55,18 @@ def phi_vs_time_range():
     plt.show()
 
     '''
-
-    ax1 = result_df.plot(kind='scatter', x='analysis_range', y='DTW_chi_phi', color='blue', title="Phi-values set out against project analysis interval for all projects", legend=True)
-    ax2 = result_df.plot(kind='scatter', x='analysis_range', y='MBA_chi_phi', color='green', ax=ax1)
-    ax3 = result_df.plot(kind='scatter', x='analysis_range', y='FO_chi_phi', color='orange', ax=ax1)
+    dtw_df = result_df[result_df.DTW_chi_pvalue < 0.05]
+    mba_df = result_df[result_df.MBA_chi_pvalue < 0.05]
+    fo_df = result_df[result_df.FO_chi_pvalue < 0.05]
+    ax1 = dtw_df.plot(kind='scatter', x='analysis_range', y='DTW_chi_phi', color='blue', title="Phi-values set out against project analysis interval for all projects", legend=True)
+    ax2 = mba_df.plot(kind='scatter', x='analysis_range', y='MBA_chi_phi', color='green', ax=ax1)
+    ax3 = fo_df.plot(kind='scatter', x='analysis_range', y='FO_chi_phi', color='orange', ax=ax1)
     ax1.set_xlabel("Length of analysis time interval", fontsize=12)
     ax1.set_ylabel("Phi-value", fontsize=12)
 
-    label_points(result_df.analysis_range, result_df.DTW_chi_phi, result_df.project, ax1)
-    label_points(result_df.analysis_range, result_df.MBA_chi_phi, result_df.project, ax1)
-    label_points(result_df.analysis_range, result_df.FO_chi_phi, result_df.project, ax1)
+    label_points(dtw_df.analysis_range, dtw_df.DTW_chi_phi, dtw_df.project, ax1)
+    label_points(mba_df.analysis_range, mba_df.MBA_chi_phi, mba_df.project, ax1)
+    label_points(fo_df.analysis_range, fo_df.FO_chi_phi, fo_df.project, ax1)
 
     plt.show()
 
@@ -73,15 +75,18 @@ def phi_vs_time_range():
 def phi_vs_all_pairs():
     result_df = get_analysis_results()
 
-    ax1 = result_df.plot(kind='scatter', x='DTW_all_pairs', y='DTW_chi_phi', color='blue', title="Phi-values set out against project size", legend=True)
-    ax2 = result_df.plot(kind='scatter', x='MBA_all_pairs', y='MBA_chi_phi', color='green', ax=ax1, legend=True)
-    ax3 = result_df.plot(kind='scatter', x='FO_all_pairs', y='FO_chi_phi', color='orange', ax=ax1, legend=True)
+    dtw_df = result_df[result_df.DTW_chi_pvalue < 0.05]
+    mba_df = result_df[result_df.MBA_chi_pvalue < 0.05]
+    fo_df = result_df[result_df.FO_chi_pvalue < 0.05]
+    ax1 = dtw_df.plot(kind='scatter', x='DTW_all_pairs', y='DTW_chi_phi', color='blue', title="Phi-values set out against project size", legend=True)
+    ax2 = mba_df.plot(kind='scatter', x='MBA_all_pairs', y='MBA_chi_phi', color='green', ax=ax1, legend=True)
+    ax3 = fo_df.plot(kind='scatter', x='FO_all_pairs', y='FO_chi_phi', color='orange', ax=ax1, legend=True)
     ax1.set_xlabel("Amount of changed file pairs", fontsize=12)
     ax1.set_ylabel("Phi-value", fontsize=12)
 
-    label_points(result_df.DTW_all_pairs, result_df.DTW_chi_phi, result_df.project, ax1)
-    label_points(result_df.MBA_all_pairs, result_df.MBA_chi_phi, result_df.project, ax1)
-    label_points(result_df.FO_all_pairs, result_df.FO_chi_phi, result_df.project, ax1)
+    label_points(dtw_df.DTW_all_pairs, dtw_df.DTW_chi_phi, dtw_df.project, ax1)
+    label_points(mba_df.MBA_all_pairs, mba_df.MBA_chi_phi, mba_df.project, ax1)
+    label_points(fo_df.FO_all_pairs, fo_df.FO_chi_phi, fo_df.project, ax1)
 
     plt.show()
 
@@ -90,15 +95,18 @@ def phi_vs_all_pairs():
 def phi_vs_commits_analyzed():
     result_df = get_analysis_results()
 
-    ax1 = result_df.plot(kind='scatter', x='commits_analyzed', y='DTW_chi_phi', color='blue', title="Phi value set out against commits analyzed", legend=True)
-    ax2 = result_df.plot(kind='scatter', x='commits_analyzed', y='MBA_chi_phi', color='green', ax=ax1, legend=True)
-    ax3 = result_df.plot(kind='scatter', x='commits_analyzed', y='FO_chi_phi', color='orange', ax=ax1, legend=True)
+    dtw_df = result_df[result_df.DTW_chi_pvalue < 0.05]
+    mba_df = result_df[result_df.MBA_chi_pvalue < 0.05]
+    fo_df = result_df[result_df.FO_chi_pvalue < 0.05]
+    ax1 = dtw_df.plot(kind='scatter', x='commits_analyzed', y='DTW_chi_phi', color='blue', title="Phi value set out against commits analyzed", legend=True)
+    ax2 = mba_df.plot(kind='scatter', x='commits_analyzed', y='MBA_chi_phi', color='green', ax=ax1, legend=True)
+    ax3 = fo_df.plot(kind='scatter', x='commits_analyzed', y='FO_chi_phi', color='orange', ax=ax1, legend=True)
     ax1.set_xlabel("Commits analyzed", fontsize=12)
     ax1.set_ylabel("Phi-value", fontsize=12)
 
-    label_points(result_df.commits_analyzed, result_df.DTW_chi_phi, result_df.project, ax1)
-    label_points(result_df.commits_analyzed, result_df.MBA_chi_phi, result_df.project, ax1)
-    label_points(result_df.commits_analyzed, result_df.FO_chi_phi, result_df.project, ax1)
+    label_points(dtw_df.commits_analyzed, dtw_df.DTW_chi_phi, dtw_df.project, ax1)
+    label_points(mba_df.commits_analyzed, mba_df.MBA_chi_phi, mba_df.project, ax1)
+    label_points(fo_df.commits_analyzed, fo_df.FO_chi_phi, fo_df.project, ax1)
 
     plt.show()
 
@@ -107,11 +115,12 @@ def phi_vs_commits_analyzed():
 def phi_vs_threshold():
     result_df = get_analysis_results()
 
-    ax1 = result_df.plot(kind='scatter', x='threshold', y='FO_chi_phi', color='blue', title="Phi value set out against the match threshold applied during FO analysis", legend=True)
+    fo_df = result_df[result_df.FO_chi_pvalue < 0.05]
+    ax1 = fo_df.plot(kind='scatter', x='threshold', y='FO_chi_phi', color='blue', title="Phi value set out against the match threshold applied during FO analysis", legend=True)
     ax1.set_xlabel("Threshold", fontsize=12)
     ax1.set_ylabel("Phi-value", fontsize=12)
 
-    label_points(result_df.threshold, result_df.FO_chi_phi, result_df.project, ax1)
+    label_points(fo_df.threshold, fo_df.FO_chi_phi, fo_df.project, ax1)
 
     plt.show()
 
@@ -123,14 +132,19 @@ def phi_vs_cc_ratio():
     result_df['MBA_cc_ratio'] = [100 * x for x in result_df.MBA_cc_pairs / result_df.MBA_all_pairs]
     result_df['FO_cc_ratio'] = [100 * x for x in result_df.FO_cc_pairs / result_df.FO_all_pairs]
 
-    ax1 = result_df.plot(kind='scatter', x='DTW_cc_ratio', y='DTW_chi_phi', color='blue', title="Phi-values set out against co-change ratio", legend=True)
-    ax2 = result_df.plot(kind='scatter', x='MBA_cc_ratio', y='MBA_chi_phi', color='green', ax=ax1)
-    ax3 = result_df.plot(kind='scatter', x='FO_cc_ratio', y='FO_chi_phi', color='orange', ax=ax1)
+
+    dtw_df = result_df[result_df.DTW_chi_pvalue < 0.05]
+    mba_df = result_df[result_df.MBA_chi_pvalue < 0.05]
+    fo_df = result_df[result_df.FO_chi_pvalue < 0.05]
+
+    ax1 = dtw_df.plot(kind='scatter', x='DTW_cc_ratio', y='DTW_chi_phi', color='blue', title="Phi-values set out against co-change ratio", legend=True)
+    ax2 = mba_df.plot(kind='scatter', x='MBA_cc_ratio', y='MBA_chi_phi', color='green', ax=ax1)
+    ax3 = fo_df.plot(kind='scatter', x='FO_cc_ratio', y='FO_chi_phi', color='orange', ax=ax1)
     ax1.set_xlabel("Percentage of file pairs marked as co-change", fontsize=12)
     ax1.set_ylabel("Phi-value", fontsize=12)
 
-    label_points(result_df.DTW_cc_ratio, result_df.DTW_chi_phi, result_df.project, ax1)
-    label_points(result_df.MBA_cc_ratio, result_df.MBA_chi_phi, result_df.project, ax1)
-    label_points(result_df.FO_cc_ratio, result_df.FO_chi_phi, result_df.project, ax1)
+    label_points(dtw_df.DTW_cc_ratio, dtw_df.DTW_chi_phi, dtw_df.project, ax1)
+    label_points(mba_df.MBA_cc_ratio, mba_df.MBA_chi_phi, mba_df.project, ax1)
+    label_points(fo_df.FO_cc_ratio, fo_df.FO_chi_phi, fo_df.project, ax1)
 
     plt.show()
