@@ -72,29 +72,32 @@ def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, in
 
     # RQ3: What happens first: smell or co-change?
     if calculate_precede_values:
+        # Filter smells and co-changes which are already present at the start of the analysis. We are not sure what their real start date is.
         overlapping_cc_smells_2 = overlapping_cc_smells.copy()
         print("unfiltered:", len(overlapping_cc_smells_2))
-        smells_from_start_mask = overlapping_cc_smells_2.apply(lambda x: x['parsedSmellFirstDate'].date() != analysis_start_date.date(), axis=1)
-        overlapping_cc_smells_2 = overlapping_cc_smells_2[smells_from_start_mask]
+        smells_not_from_start_mask = overlapping_cc_smells_2.apply(lambda x: x['parsedSmellFirstDate'].date() != analysis_start_date.date(), axis=1)
+        overlapping_cc_smells_2 = overlapping_cc_smells_2[smells_not_from_start_mask]
         print("after filtering smells: ", len(overlapping_cc_smells_2))  # Note: this counts joined rows
-        ccs_from_start_mask = overlapping_cc_smells_2.apply(lambda x: x['parsedStartDate'].date() != analysis_start_date.date(), axis=1)
-        overlapping_cc_smells_2 = overlapping_cc_smells_2[ccs_from_start_mask]
+        ccs_not_from_start_mask = overlapping_cc_smells_2.apply(lambda x: x['parsedStartDate'].date() != analysis_start_date.date(), axis=1)
+        overlapping_cc_smells_2 = overlapping_cc_smells_2[ccs_not_from_start_mask]
         print("filtered ccs: ", len(overlapping_cc_smells_2))
 
-        # Compare the two start dates and count which is earlier how often.
+        # Compare the two start dates and count which is earlier how often. Also count ties!
         smell_earlier_mask = overlapping_cc_smells_2.apply(lambda x: x['parsedSmellFirstDate'].date() < x['parsedStartDate'].date(), axis=1)
         earlier_smell_rows = overlapping_cc_smells_2[smell_earlier_mask]
         cc_earlier_mask = overlapping_cc_smells_2.apply(lambda x: x['parsedStartDate'].date() < x['parsedSmellFirstDate'].date(), axis=1)
         earlier_ccs_rows = overlapping_cc_smells_2[cc_earlier_mask]
         tied_mask = overlapping_cc_smells_2.apply(lambda x: x['parsedStartDate'].date() == x['parsedSmellFirstDate'].date(), axis=1)
         tied_rows = overlapping_cc_smells_2[tied_mask]
-        earlier_smell_pairs = to_unique_file_tuples(earlier_smell_rows)
-        earlier_ccs_pairs = to_unique_file_tuples(earlier_ccs_rows)
-        tied_pairs = to_unique_file_tuples(tied_rows)
+        # group by: file1, file2, smellId
+        #earlier_smell_pairs = earlier_smell_rows.groupby(['file1', 'file2', 'uniqueSmellID']).ngroups
+        earlier_smell_pairs = len(pd.unique(earlier_smell_rows[['file1', 'file2', 'uniqueSmellID']].values.ravel('K')))
+        earlier_ccs_pairs = len(pd.unique(earlier_ccs_rows[['file1', 'file2', 'uniqueSmellID']].values.ravel('K')))
+        tied_pairs = len(pd.unique(tied_rows[['file1', 'file2', 'uniqueSmellID']].values.ravel('K')))
 
-        add_result(project_name, name + "_earlier_smell_pairs", len(earlier_smell_pairs))
-        add_result(project_name, name + "_earlier_ccs_pairs", len(earlier_ccs_pairs))
-        add_result(project_name, name + "_tied_pairs", len(tied_pairs))
+        add_result(project_name, name + "_earlier_smell_pairs", earlier_smell_pairs)
+        add_result(project_name, name + "_earlier_ccs_pairs", earlier_ccs_pairs)
+        add_result(project_name, name + "_tied_pairs", tied_pairs)
 
     # Store the balance in results
     add_result(project_name, name + "_all_pairs", len(all_pairs_df))
@@ -132,7 +135,7 @@ def overlap_dtw():
                                       True,
                                       True,
                                       True,
-                                      False)
+                                      True)
 
 
 def overlap_mba():
@@ -142,7 +145,7 @@ def overlap_mba():
                                       True,
                                       True,
                                       True,
-                                      False)
+                                      True)
 
 
 def overlap_fo():
@@ -152,7 +155,7 @@ def overlap_fo():
                                       True,
                                       True,
                                       True,
-                                      False)
+                                      True)
 
 #
 # Time of smell vs time of co-change

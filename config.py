@@ -3,17 +3,15 @@ import getopt
 import sys
 
 
-analysis_start_date = datetime.datetime(2015, 1, 6)
+analysis_start_date = datetime.datetime(2012, 4, 10)
 analysis_end_date = datetime.datetime(2020, 5, 14)
-project_name = "robolectric"
+project_name = "RxJava"
 input_directory = "input/" + project_name
 output_directory = "output/" + project_name
 clone_directory = "projects/" + project_name
-git_repo = "robolectric/" + project_name
+git_repo = "ReactiveX/" + project_name
 git_url = "https://github.com/"+git_repo+".git"
-branch = 'master'
-
-
+branch = '3.x'
 
 
 

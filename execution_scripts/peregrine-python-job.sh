@@ -1,7 +1,7 @@
 #!/bin/bash
-#SBATCH --job-name=python-explorations-roborx
+#SBATCH --job-name=python-explorations-RQ3_v1
 #SBATCH --mail-type=ALL
-#SBATCH --time=1-12:00
+#SBATCH --time=2-12:00
 #SBATCH --mail-user=r.j.scheedler@student.rug.nl
 #SBATCH --output=job-%j.log
 #SBATCH --partition=regular
@@ -22,4 +22,4 @@ pip install PyGithub --user
 pip install matplotlib-venn --user
 pip install seaborn --user
 
-srun /data/s2550709/CoChangeAnalysis/execution_scripts/job.sh
+srun /data/s2550709/CoChangeAnalysis/execution_scripts/job-jackson.sh
