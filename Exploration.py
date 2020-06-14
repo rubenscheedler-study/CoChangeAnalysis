@@ -133,7 +133,7 @@ def overlap_dtw():
                                       find_pairs(output_directory + "/file_pairs_dtw.csv"),
                                       find_pairs_with_date_range(output_directory + "/dtw.csv", '%Y-%m-%d %H:%M:%S'),
                                       True,
-                                      True,
+                                      False,
                                       True,
                                       True)
 
@@ -143,7 +143,7 @@ def overlap_mba():
                                       find_pairs(output_directory + "/file_pairs_mba.csv"),
                                       find_pairs_with_date_range(output_directory + "/mba.csv", '%Y-%m-%d %H:%M:%S'),
                                       True,
-                                      True,
+                                      False,
                                       True,
                                       True)
 
@@ -153,7 +153,7 @@ def overlap_fo():
                                       find_pairs(input_directory + "/file_pairs.csv"),
                                       find_pairs_with_date_range(input_directory + "/cochanges.csv", '%d-%m-%Y'),
                                       True,
-                                      True,
+                                      False,
                                       True,
                                       True)
 

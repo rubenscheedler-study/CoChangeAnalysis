@@ -7,7 +7,6 @@ from hyperparameter_analysis.CommitsPerCommitDay import commits_per_commitday
 from hyperparameter_analysis.Commits_over_lifetime import commits_over_lifetime
 from Exploration import run_exploration
 from hyperparameter_analysis.FilesPerCommit import files_per_commit_information
-from hyperparameter_analysis.ThresholdAnalysis import threshold_distribution
 from hyperparameter_analysis.TimeBetweenCommits import time_between_commits
 from dynamic_Warp import generate_dtw_analysis_files
 from results_analysis.analysis import result_analysis
@@ -38,13 +37,13 @@ def generate_analysis():
     generate_dtw_analysis_files()
     generate_mba_analysis_files()
 
-#hyper_param_analysis()
-threshold_distribution()
+# hyper_param_analysis()
+# threshold_distribution()
 # generate_analysis()
 
-#run_exploration()
+# run_exploration()
 
-#result_analysis()
+result_analysis()
 
 #start = time.time()
 #run_exploration()

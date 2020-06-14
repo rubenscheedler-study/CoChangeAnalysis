@@ -3,18 +3,20 @@ import getopt
 import sys
 
 
-analysis_start_date = datetime.datetime(2012, 4, 10)
+analysis_start_date = datetime.datetime(2001, 5, 16)
 analysis_end_date = datetime.datetime(2020, 5, 14)
-project_name = "RxJava"
+project_name = "pgjdbc"
 input_directory = "input/" + project_name
 output_directory = "output/" + project_name
 clone_directory = "projects/" + project_name
-git_repo = "ReactiveX/" + project_name
+git_repo = "pgjdbc/" + project_name
 git_url = "https://github.com/"+git_repo+".git"
-branch = '3.x'
+branch = 'master'
 
 
 
+
+api_key_github = 'a0b658d0dc9342b2fe5ba236ec4f2d5a29ef85dc'
 git_project_owner = "unknown_owner"  # Only used for the command line initialization
 results_file = "analysis_results.csv"
 
