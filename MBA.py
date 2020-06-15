@@ -10,13 +10,14 @@ import matplotlib.pyplot as plt
 
 from config import output_directory
 from helper_scripts.Commit_date_helper import add_file_dates
+from helper_scripts.changes_helper import get_changes
 from helper_scripts.components_helper import get_components
 from helper_scripts.file_pair_helper import filter_duplicate_file_pairs, generate_all_pairs
 from helper_scripts.smell_helper import get_class_from_package
 
 
 def perform_mba():
-    components = get_components()
+    components = get_changes()
     # group names by version
     grouped_comp = components.groupby('version')['name'].apply(list).reset_index(name='shoppingList')
     components_list = grouped_comp['shoppingList']
@@ -28,7 +29,7 @@ def perform_mba():
     rules = generate_basket_rules(df)
     rules['file1'] = list(map(lambda x: next(iter(x)), rules['antecedents']))
     rules['file2'] = list(map(lambda x: next(iter(x)), rules['consequents']))
-    return rules, components['name']
+    return rules, components[['name', 'package']]
 
 
 def generate_basket_rules(df):
@@ -101,17 +102,28 @@ def generate_mba_analysis_files():
     # 1) Build the dataframe containing the co-changes
     rules = filter_duplicate_file_pairs(rules)  # df: file1, file2
     # Add package columns
-    rules['package1'] = rules["file1"].str.rsplit(".", 1).str[0]
-    rules['package2'] = rules["file2"].str.rsplit(".", 1).str[0]
+    #rules['package1'] = rules["file1"].str.rsplit(".", 1).str[0]
+    #rules['package2'] = rules["file2"].str.rsplit(".", 1).str[0]
     rules_with_dates = add_file_dates(rules)
+
+    rules_with_dates = rules_with_dates.merge(changed_files, how='inner', left_on=['file1'], right_on=['name'])
+    rules_with_dates = rules_with_dates.drop(columns=['name'])
+    rules_with_dates = rules_with_dates.rename(columns={'package': 'package1'})
+    rules_with_dates = rules_with_dates.merge(changed_files, how='inner', left_on=['file2'], right_on=['name'])
+    rules_with_dates = rules_with_dates.rename(columns={'package': 'package2'})
+    rules_with_dates = rules_with_dates.drop(columns=['name'])
     # Map files to class.java
     rules_with_dates['file1'] = rules_with_dates['file1'].apply(get_class_from_package)
     rules_with_dates['file2'] = rules_with_dates['file2'].apply(get_class_from_package)
 
     # 2) Build the dataframe containing all changed pairs
-    all_pairs = generate_all_pairs(changed_files)  # df: file1, file2
-    all_pairs['package1'] = all_pairs["file1"].str.rsplit(".", 1).str[0]
-    all_pairs['package2'] = all_pairs["file2"].str.rsplit(".", 1).str[0]
+    all_pairs = generate_all_pairs(changed_files['name'])  # df: file1, file2
+    all_pairs = all_pairs.merge(changed_files, how='inner', left_on=['file1'], right_on=['name'])
+    all_pairs = all_pairs.drop(columns=['name'])
+    all_pairs = all_pairs.rename(columns={'package': 'package1'})
+    all_pairs = all_pairs.merge(changed_files, how='inner', left_on=['file2'], right_on=['name'])
+    all_pairs = all_pairs.rename(columns={'package': 'package2'})
+    all_pairs = all_pairs.drop(columns=['name'])
     # Map files to class.java
     all_pairs['file1'] = all_pairs['file1'].apply(get_class_from_package)
     all_pairs['file2'] = all_pairs['file2'].apply(get_class_from_package)
