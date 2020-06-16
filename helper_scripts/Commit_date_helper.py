@@ -23,7 +23,6 @@ def get_commit_date(commit_hash):
         return u
     else:
         # get from github then add to dictionary
-        #commit = repo.get_commit(sha=commit_hash.split('-')[-1]) # for component-characteritics
         commit = repo.get_commit(sha=commit_hash)
         date = datetime.timestamp(commit.commit.committer.date)
         smells[commit_hash] = date

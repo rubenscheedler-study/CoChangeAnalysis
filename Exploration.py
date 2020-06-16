@@ -5,7 +5,7 @@ from matplotlib_venn import venn3, venn2
 
 from Analyzer import Analyzer
 from helper_scripts.file_pair_helper import order_file1_and_file2, order_package1_and_package2, to_unique_file_tuples, \
-    find_pairs_with_date_range, find_pairs
+    find_pairs_with_date_range
 from config import output_directory, input_directory, project_name, analysis_start_date
 from matplotlib import pyplot as plt
 
@@ -21,11 +21,9 @@ def run_exploration():
 
 
 def calculate_smell_co_change_overlaps():
-    dtw_pairs = set(overlap_dtw())
-    mba_pairs = set(overlap_mba())
-    fo_pairs = set(overlap_fo())
-    #venn3([dtw_pairs, mba_pairs, fo_pairs], ('dtw', 'mba', 'fo'))
-    #plt.show()
+    overlap_dtw()
+    overlap_mba()
+    overlap_fo()
 
 
 def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, include_class_level=True, include_package_level=True, calculate_chi_square=True, calculate_precede_values=True):
@@ -130,7 +128,7 @@ def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, in
 
 def overlap_dtw():
     return print_overlap_of_algorithm("DTW",
-                                      find_pairs(output_directory + "/file_pairs_dtw.csv"),
+                                      pd.read_csv(input_directory + "/file_pairs.csv"),
                                       find_pairs_with_date_range(output_directory + "/dtw.csv", '%Y-%m-%d %H:%M:%S'),
                                       True,
                                       True,
@@ -140,7 +138,7 @@ def overlap_dtw():
 
 def overlap_mba():
     return print_overlap_of_algorithm("MBA",
-                                      find_pairs(output_directory + "/file_pairs_mba.csv"),
+                                      pd.read_csv(input_directory + "/file_pairs.csv"),
                                       find_pairs_with_date_range(output_directory + "/mba.csv", '%Y-%m-%d %H:%M:%S'),
                                       True,
                                       True,
@@ -150,7 +148,7 @@ def overlap_mba():
 
 def overlap_fo():
     return print_overlap_of_algorithm("FO",
-                                      find_pairs(input_directory + "/file_pairs.csv"),
+                                      pd.read_csv(input_directory + "/file_pairs.csv"),
                                       find_pairs_with_date_range(input_directory + "/cochanges.csv", '%d-%m-%Y'),
                                       True,
                                       True,

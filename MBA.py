@@ -9,11 +9,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from config import output_directory
-from helper_scripts.Commit_date_helper import add_file_dates
 from helper_scripts.changes_helper import get_changes
-from helper_scripts.components_helper import get_components
-from helper_scripts.file_pair_helper import filter_duplicate_file_pairs, generate_all_pairs
-from helper_scripts.smell_helper import get_class_from_package
+from helper_scripts.file_pair_helper import add_info_to_cochanges
 
 
 def perform_mba():
@@ -37,28 +34,13 @@ def generate_basket_rules(df):
     all_itemsets.to_pickle(output_directory + "/mba_support_0.pkl")
     supp0 = sorted(all_itemsets['support'])
     print("----threshold results mba support----")
-    print("quartile values:")
-    firstquartile = np.percentile(supp0, 25)
-    median = np.percentile(supp0, 50)
-    thirdquartile = np.percentile(supp0, 75)
-    print("90% at threshold: ", np.percentile(supp0, 90))
-    print("95% at threshold: ", np.percentile(supp0, 95))
-    print(firstquartile, median, thirdquartile)
-
+    print_quartiles(supp0)
 
     rules = association_rules(all_itemsets, metric="confidence", min_threshold=0.0)
     rules.to_pickle(output_directory + "/mba_conf_0_supp_0.pkl")
     conf_0_supp0 = sorted(rules['confidence'])
     print("----threshold results mba confidence without support threshold----")
-    print("quartile values:")
-    firstquartile = np.percentile(conf_0_supp0, 25)
-    median = np.percentile(conf_0_supp0, 50)
-    thirdquartile = np.percentile(conf_0_supp0, 75)
-    print("90% at threshold: ", np.percentile(conf_0_supp0, 90))
-    print("95% at threshold: ", np.percentile(conf_0_supp0, 95))
-    print(firstquartile, median, thirdquartile)
-
-
+    print_quartiles(conf_0_supp0)
 
     frequent_itemsets = apriori(df, min_support=0.02, use_colnames=True, max_len=2)
     frequent_itemsets.to_pickle(output_directory + "/mba_support_2.pkl")
@@ -80,16 +62,20 @@ def generate_basket_rules(df):
     #plt.show()
 
     print("----threshold results mba confidence after support threshold----")
-    print("quartile values:")
-    firstquartile = np.percentile(conf_0_supp2, 25)
-    median = np.percentile(conf_0_supp2, 50)
-    thirdquartile = np.percentile(conf_0_supp2, 75)
-    print("90% at threshold: ", np.percentile(conf_0_supp2, 90))
-    print("95% at threshold: ", np.percentile(conf_0_supp2, 95))
-    print(firstquartile, median, thirdquartile)
+    print_quartiles(conf_0_supp2)
     rules = association_rules(frequent_itemsets, metric="confidence", min_threshold=0.8)
     rules.to_pickle(output_directory + "/mba_conf_8.pkl")
     return rules
+
+
+def print_quartiles(arr):
+    print("quartile values:")
+    first_quartile = np.percentile(arr, 25)
+    median = np.percentile(arr, 50)
+    third_quartile = np.percentile(arr, 75)
+    print("90% at threshold: ", np.percentile(arr, 90))
+    print("95% at threshold: ", np.percentile(arr, 95))
+    print(first_quartile, median, third_quartile)
 
 
 def generate_mba_analysis_files():
@@ -100,35 +86,8 @@ def generate_mba_analysis_files():
     rules, changed_files = perform_mba()
 
     # 1) Build the dataframe containing the co-changes
-    rules = filter_duplicate_file_pairs(rules)  # df: file1, file2
-    # Add package columns
-    #rules['package1'] = rules["file1"].str.rsplit(".", 1).str[0]
-    #rules['package2'] = rules["file2"].str.rsplit(".", 1).str[0]
-    rules_with_dates = add_file_dates(rules)
-
-    rules_with_dates = rules_with_dates.merge(changed_files, how='inner', left_on=['file1'], right_on=['name'])
-    rules_with_dates = rules_with_dates.drop(columns=['name'])
-    rules_with_dates = rules_with_dates.rename(columns={'package': 'package1'})
-    rules_with_dates = rules_with_dates.merge(changed_files, how='inner', left_on=['file2'], right_on=['name'])
-    rules_with_dates = rules_with_dates.rename(columns={'package': 'package2'})
-    rules_with_dates = rules_with_dates.drop(columns=['name'])
-    # Map files to class.java
-    rules_with_dates['file1'] = rules_with_dates['file1'].apply(get_class_from_package)
-    rules_with_dates['file2'] = rules_with_dates['file2'].apply(get_class_from_package)
-
-    # 2) Build the dataframe containing all changed pairs
-    all_pairs = generate_all_pairs(changed_files['name'])  # df: file1, file2
-    all_pairs = all_pairs.merge(changed_files, how='inner', left_on=['file1'], right_on=['name'])
-    all_pairs = all_pairs.drop(columns=['name'])
-    all_pairs = all_pairs.rename(columns={'package': 'package1'})
-    all_pairs = all_pairs.merge(changed_files, how='inner', left_on=['file2'], right_on=['name'])
-    all_pairs = all_pairs.rename(columns={'package': 'package2'})
-    all_pairs = all_pairs.drop(columns=['name'])
-    # Map files to class.java
-    all_pairs['file1'] = all_pairs['file1'].apply(get_class_from_package)
-    all_pairs['file2'] = all_pairs['file2'].apply(get_class_from_package)
+    rules_with_dates = add_info_to_cochanges(rules, changed_files)
 
     rules_with_dates.to_csv(output_directory + "/mba.csv")
-    all_pairs.to_csv(output_directory + "/file_pairs_mba.csv")
 
 

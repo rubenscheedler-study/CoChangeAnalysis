@@ -40,7 +40,6 @@ def read_args(argv):
     # Store arguments
     for opt, arg in opts:
         if opt == '-p':
-            print("das mien werk")
             global project_name
             project_name = arg
             print(project_name)
