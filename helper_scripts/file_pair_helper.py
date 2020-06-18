@@ -53,6 +53,7 @@ def add_info_to_cochanges(df, changed_files):
     df_with_dates = df_with_dates.merge(changed_files, how='inner', left_on=['file2'], right_on=['name'])
     df_with_dates = df_with_dates.rename(columns={'package': 'package2'})
     df_with_dates = df_with_dates.drop(columns=['name'])
+    df_with_dates = df_with_dates.drop_duplicates()
     # Map files to class.java
     df_with_dates['file1'] = df_with_dates['file1'].apply(get_class_from_package)
     df_with_dates['file2'] = df_with_dates['file2'].apply(get_class_from_package)
