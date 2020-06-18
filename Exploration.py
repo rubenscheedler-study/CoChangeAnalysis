@@ -73,20 +73,16 @@ def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, in
         # Filter smells and co-changes which are already present at the start of the analysis. We are not sure what their real start date is.
         overlapping_cc_smells_2 = overlapping_cc_smells.copy()
         print("unfiltered:", len(overlapping_cc_smells_2))
-        smells_not_from_start_mask = overlapping_cc_smells_2.apply(lambda x: x['parsedSmellFirstDate'].date() != analysis_start_date.date(), axis=1)
-        overlapping_cc_smells_2 = overlapping_cc_smells_2[smells_not_from_start_mask]
+        x = overlapping_cc_smells_2['parsedSmellFirstDate'].dt.date
+        overlapping_cc_smells_2 = overlapping_cc_smells_2[overlapping_cc_smells_2['parsedSmellFirstDate'].dt.date != analysis_start_date.date()]
         print("after filtering smells: ", len(overlapping_cc_smells_2))  # Note: this counts joined rows
-        ccs_not_from_start_mask = overlapping_cc_smells_2.apply(lambda x: x['parsedStartDate'].date() != analysis_start_date.date(), axis=1)
-        overlapping_cc_smells_2 = overlapping_cc_smells_2[ccs_not_from_start_mask]
+        overlapping_cc_smells_2 = overlapping_cc_smells_2[overlapping_cc_smells_2['parsedStartDate'].dt.date != analysis_start_date.date()]
         print("filtered ccs: ", len(overlapping_cc_smells_2))
 
         # Compare the two start dates and count which is earlier how often. Also count ties!
-        smell_earlier_mask = overlapping_cc_smells_2.apply(lambda x: x['parsedSmellFirstDate'].date() < x['parsedStartDate'].date(), axis=1)
-        earlier_smell_rows = overlapping_cc_smells_2[smell_earlier_mask]
-        cc_earlier_mask = overlapping_cc_smells_2.apply(lambda x: x['parsedStartDate'].date() < x['parsedSmellFirstDate'].date(), axis=1)
-        earlier_ccs_rows = overlapping_cc_smells_2[cc_earlier_mask]
-        tied_mask = overlapping_cc_smells_2.apply(lambda x: x['parsedStartDate'].date() == x['parsedSmellFirstDate'].date(), axis=1)
-        tied_rows = overlapping_cc_smells_2[tied_mask]
+        earlier_smell_rows = overlapping_cc_smells_2[overlapping_cc_smells_2['parsedSmellFirstDate'].dt.date < overlapping_cc_smells_2['parsedStartDate'].dt.date]
+        earlier_ccs_rows = overlapping_cc_smells_2[overlapping_cc_smells_2['parsedStartDate'].dt.date < overlapping_cc_smells_2['parsedSmellFirstDate'].dt.date]
+        tied_rows = overlapping_cc_smells_2[overlapping_cc_smells_2['parsedStartDate'].dt.date == overlapping_cc_smells_2['parsedSmellFirstDate'].dt.date]
         # group by: file1, file2, smellId
         #earlier_smell_pairs = earlier_smell_rows.groupby(['file1', 'file2', 'uniqueSmellID']).ngroups
         earlier_smell_pairs = len(pd.unique(earlier_smell_rows[['file1', 'file2', 'uniqueSmellID']].values.ravel('K')))
@@ -131,9 +127,9 @@ def overlap_dtw():
                                       pd.read_csv(input_directory + "/file_pairs.csv"),
                                       find_pairs_with_date_range(output_directory + "/dtw.csv", '%Y-%m-%d %H:%M:%S'),
                                       True,
-                                      False,
                                       True,
-                                      False)
+                                      True,
+                                      True)
 
 
 def overlap_mba():
@@ -143,7 +139,7 @@ def overlap_mba():
                                       True,
                                       False,
                                       True,
-                                      False)
+                                      True)
 
 
 def overlap_fo():
@@ -151,9 +147,9 @@ def overlap_fo():
                                       pd.read_csv(input_directory + "/file_pairs.csv"),
                                       find_pairs_with_date_range(input_directory + "/cochanges.csv", '%d-%m-%Y'),
                                       True,
-                                      False,
                                       True,
-                                      False)
+                                      True,
+                                      True)
 
 #
 # Time of smell vs time of co-change
