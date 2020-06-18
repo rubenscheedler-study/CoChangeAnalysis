@@ -131,7 +131,7 @@ def overlap_dtw():
                                       pd.read_csv(input_directory + "/file_pairs.csv"),
                                       find_pairs_with_date_range(output_directory + "/dtw.csv", '%Y-%m-%d %H:%M:%S'),
                                       True,
-                                      True,
+                                      False,
                                       True,
                                       False)
 
@@ -141,7 +141,7 @@ def overlap_mba():
                                       pd.read_csv(input_directory + "/file_pairs.csv"),
                                       find_pairs_with_date_range(output_directory + "/mba.csv", '%Y-%m-%d %H:%M:%S'),
                                       True,
-                                      True,
+                                      False,
                                       True,
                                       False)
 
@@ -151,7 +151,7 @@ def overlap_fo():
                                       pd.read_csv(input_directory + "/file_pairs.csv"),
                                       find_pairs_with_date_range(input_directory + "/cochanges.csv", '%d-%m-%Y'),
                                       True,
-                                      True,
+                                      False,
                                       True,
                                       False)
 

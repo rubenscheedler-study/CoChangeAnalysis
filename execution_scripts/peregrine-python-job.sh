@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=python-explorations-rerun-CP
+#SBATCH --job-name=python-explorations-rerun-argo
 #SBATCH --mail-type=ALL
 #SBATCH --time=2-12:00
 #SBATCH --mail-user=r.j.scheedler@student.rug.nl

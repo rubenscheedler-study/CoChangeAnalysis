@@ -62,7 +62,10 @@ def generate_basket_rules(df):
     #plt.show()
 
     print("----threshold results mba confidence after support threshold----")
-    print_quartiles(conf_0_supp2)
+    if len(conf_0_supp2) == 0:
+        print("Quartiles could not be calculated. conf_0_supp2 is empty.")
+    else:
+        print_quartiles(conf_0_supp2)
     rules = association_rules(frequent_itemsets, metric="confidence", min_threshold=0.8)
     rules.to_pickle(output_directory + "/mba_conf_8.pkl")
     return rules
