@@ -131,9 +131,9 @@ def overlap_dtw():
                                       pd.read_csv(input_directory + "/file_pairs.csv"),
                                       find_pairs_with_date_range(output_directory + "/dtw.csv", '%Y-%m-%d %H:%M:%S'),
                                       True,
-                                      False,
                                       True,
-                                      True)
+                                      True,
+                                      False)
 
 
 def overlap_mba():
@@ -141,9 +141,9 @@ def overlap_mba():
                                       pd.read_csv(input_directory + "/file_pairs.csv"),
                                       find_pairs_with_date_range(output_directory + "/mba.csv", '%Y-%m-%d %H:%M:%S'),
                                       True,
-                                      False,
                                       True,
-                                      True)
+                                      True,
+                                      False)
 
 
 def overlap_fo():
@@ -151,9 +151,9 @@ def overlap_fo():
                                       pd.read_csv(input_directory + "/file_pairs.csv"),
                                       find_pairs_with_date_range(input_directory + "/cochanges.csv", '%d-%m-%Y'),
                                       True,
-                                      False,
                                       True,
-                                      True)
+                                      True,
+                                      False)
 
 #
 # Time of smell vs time of co-change

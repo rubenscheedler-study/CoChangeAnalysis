@@ -24,7 +24,7 @@ def cochanges_over_time():
     analysis_results = get_analysis_results()
     analysed_projects = [f.name for f in os.scandir('output') if f.is_dir()]
     for proj in analysed_projects:
-        if proj != 'poi':
+        if proj != 'mybatis-3':
             continue
 
         data_row = analysis_results.loc[analysis_results['project'] == proj]
