@@ -62,23 +62,24 @@ def generate_basket_rules(df):
     #plt.show()
 
     print("----threshold results mba confidence after support threshold----")
-    if len(conf_0_supp2) == 0:
-        print("Quartiles could not be calculated. conf_0_supp2 is empty.")
-    else:
-        print_quartiles(conf_0_supp2)
+
+    print_quartiles(conf_0_supp2)
     rules = association_rules(frequent_itemsets, metric="confidence", min_threshold=0.8)
     rules.to_pickle(output_directory + "/mba_conf_8.pkl")
     return rules
 
 
 def print_quartiles(arr):
-    print("quartile values:")
-    first_quartile = np.percentile(arr, 25)
-    median = np.percentile(arr, 50)
-    third_quartile = np.percentile(arr, 75)
-    print("90% at threshold: ", np.percentile(arr, 90))
-    print("95% at threshold: ", np.percentile(arr, 95))
-    print(first_quartile, median, third_quartile)
+    if len(arr) == 0:
+        print("Quartiles could not be calculated. array is empty.")
+    else:
+        print("quartile values:")
+        first_quartile = np.percentile(arr, 25)
+        median = np.percentile(arr, 50)
+        third_quartile = np.percentile(arr, 75)
+        print("90% at threshold: ", np.percentile(arr, 90))
+        print("95% at threshold: ", np.percentile(arr, 95))
+        print(first_quartile, median, third_quartile)
 
 
 def generate_mba_analysis_files():
