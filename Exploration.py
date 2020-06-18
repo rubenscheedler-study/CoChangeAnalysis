@@ -73,16 +73,16 @@ def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, in
         # Filter smells and co-changes which are already present at the start of the analysis. We are not sure what their real start date is.
         overlapping_cc_smells_2 = overlapping_cc_smells.copy()
         print("unfiltered:", len(overlapping_cc_smells_2))
-        x = overlapping_cc_smells_2['parsedSmellFirstDate'].dt.date
-        overlapping_cc_smells_2 = overlapping_cc_smells_2[overlapping_cc_smells_2['parsedSmellFirstDate'].dt.date != analysis_start_date.date()]
+        x = overlapping_cc_smells_2['parsedSmellFirstDate'].dt.floor('d')
+        overlapping_cc_smells_2 = overlapping_cc_smells_2[overlapping_cc_smells_2['parsedSmellFirstDate'].dt.floor('d') != analysis_start_date.date()]
         print("after filtering smells: ", len(overlapping_cc_smells_2))  # Note: this counts joined rows
-        overlapping_cc_smells_2 = overlapping_cc_smells_2[overlapping_cc_smells_2['parsedStartDate'].dt.date != analysis_start_date.date()]
+        overlapping_cc_smells_2 = overlapping_cc_smells_2[overlapping_cc_smells_2['parsedStartDate'].dt.floor('d') != analysis_start_date.date()]
         print("filtered ccs: ", len(overlapping_cc_smells_2))
 
         # Compare the two start dates and count which is earlier how often. Also count ties!
-        earlier_smell_rows = overlapping_cc_smells_2[overlapping_cc_smells_2['parsedSmellFirstDate'].dt.date < overlapping_cc_smells_2['parsedStartDate'].dt.date]
-        earlier_ccs_rows = overlapping_cc_smells_2[overlapping_cc_smells_2['parsedStartDate'].dt.date < overlapping_cc_smells_2['parsedSmellFirstDate'].dt.date]
-        tied_rows = overlapping_cc_smells_2[overlapping_cc_smells_2['parsedStartDate'].dt.date == overlapping_cc_smells_2['parsedSmellFirstDate'].dt.date]
+        earlier_smell_rows = overlapping_cc_smells_2[overlapping_cc_smells_2['parsedSmellFirstDate'].dt.floor('d') < overlapping_cc_smells_2['parsedStartDate'].dt.floor('d')]
+        earlier_ccs_rows = overlapping_cc_smells_2[overlapping_cc_smells_2['parsedStartDate'].dt.floor('d') < overlapping_cc_smells_2['parsedSmellFirstDate'].dt.floor('d')]
+        tied_rows = overlapping_cc_smells_2[overlapping_cc_smells_2['parsedStartDate'].dt.floor('d') == overlapping_cc_smells_2['parsedSmellFirstDate'].dt.floor('d')]
         # group by: file1, file2, smellId
         #earlier_smell_pairs = earlier_smell_rows.groupby(['file1', 'file2', 'uniqueSmellID']).ngroups
         earlier_smell_pairs = len(pd.unique(earlier_smell_rows[['file1', 'file2', 'uniqueSmellID']].values.ravel('K')))
