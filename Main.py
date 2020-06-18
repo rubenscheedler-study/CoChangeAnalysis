@@ -39,10 +39,10 @@ def generate_analysis():
     generate_mba_analysis_files()
 
 # hyper_param_analysis()
-threshold_distribution()
+# threshold_distribution()
 # generate_analysis()
 
-# run_exploration()
+run_exploration()
 
 # result_analysis()
 

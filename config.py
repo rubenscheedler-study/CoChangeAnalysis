@@ -3,19 +3,19 @@ import getopt
 import sys
 
 
-analysis_start_date = datetime.datetime(2015, 4, 12)
+analysis_start_date = datetime.datetime(2013, 10, 30)
 analysis_end_date = datetime.datetime(2020, 5, 14)
-project_name = "spring-framework"
+project_name = "sonarlint-intellij"
 input_directory = "input/" + project_name
 output_directory = "output/" + project_name
 clone_directory = "projects/" + project_name
-git_repo = "spring-projects/" + project_name
+git_repo = "SonarSource/" + project_name
 git_url = "https://github.com/"+git_repo+".git"
 branch = 'master'
 
 
 
-api_key_github = 'a0b658d0dc9342b2fe5ba236ec4f2d5a29ef85dc'
+api_key_github = '44adb4aa0b590134e57e6e741992fa124e27d99a' # 'a0b658d0dc9342b2fe5ba236ec4f2d5a29ef85dc'
 git_project_owner = "unknown_owner"  # Only used for the command line initialization
 results_file = "analysis_results.csv"
 
