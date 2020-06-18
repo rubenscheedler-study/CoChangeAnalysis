@@ -77,6 +77,8 @@ def print_quartiles(arr):
         first_quartile = np.percentile(arr, 25)
         median = np.percentile(arr, 50)
         third_quartile = np.percentile(arr, 75)
+        print("10% at threshold: ", np.percentile(arr, 10))
+        print("1% at threshold: ", np.percentile(arr, 1))
         print("90% at threshold: ", np.percentile(arr, 90))
         print("95% at threshold: ", np.percentile(arr, 95))
         print(first_quartile, median, third_quartile)

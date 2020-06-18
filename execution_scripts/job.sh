@@ -4,8 +4,8 @@
 cd /data/s2550709/CoChangeAnalysis
 
 # Execute required programs
-python3 -X faulthandler ./run_exploration.py -p argouml -s 17-09-2004 -e 14-05-2020 -o argouml-tigris-org -b master
-#python3 -X faulthandler ./run_exploration.py -p cassandra -s 14-08-2014 -e 14-05-2020 -o apache -b trunk
+# python3 -X faulthandler ./run_exploration.py -p argouml -s 17-09-2004 -e 14-05-2020 -o argouml-tigris-org -b master
+python3 -X faulthandler ./run_exploration.py -p cassandra -s 14-08-2014 -e 14-05-2020 -o apache -b trunk
 #python3 -X faulthandler ./run_exploration.py -p druid -s 02-01-2013 -e 14-05-2020 -o apache -b master
 #python3 -X faulthandler ./run_exploration.py -p hibernate-orm -s 27-02-2013 -e 14-05-2020 -o hibernate -b master
 #python3 -X faulthandler ./run_exploration.py -p jackson-databind -s 18-07-2012 -e 14-05-2020 -o FasterXML -b master

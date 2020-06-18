@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import config
+from MBA import print_quartiles
 from config import output_directory
 from helper_scripts.Commit_date_helper import convert_hashlist_to_datelist
 from helper_scripts.changes_helper import get_changes
@@ -43,13 +44,7 @@ def perform_dtw():
     print("----threshold results DTW----")
     print("quartile values:")
     distances = list(map(lambda x: x.dist, distance_list))
-    #visualise_dtw_distances(distances)
-    first_quartile = np.percentile(distances, 25)
-    median = np.percentile(distances, 50)
-    third_quartile = np.percentile(distances, 75)
-    print("10% at threshold: ", np.percentile(distances, 10))
-    print("1% at threshold: ", np.percentile(distances, 1))
-    print(first_quartile, median, third_quartile)
+    print_quartiles(distances)
 
     warpdf = pd.DataFrame(return_list, columns=['file1', 'file2'])
     return warpdf, components[['name', 'package']]
