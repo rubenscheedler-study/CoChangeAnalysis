@@ -32,5 +32,6 @@ class JoinHelper:
         return pd.concat(processed_chunks) if processed_chunks != [] else pd.DataFrame(
             columns=[level + '1', level + '2'])  # Note: do not add more columns here, since it results in duplicates during joins and thus columns like parsedDate_x
 
+
 def split_into_chunks(df, chunk_size):
     return [df[i:i + chunk_size] for i in range(0, df.shape[0], chunk_size)]

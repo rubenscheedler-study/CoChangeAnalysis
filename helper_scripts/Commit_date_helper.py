@@ -5,14 +5,24 @@ from config import input_directory, api_key_github
 import pandas as pd
 from datetime import datetime
 
+from helper_scripts.pickle_helper import load_pickle
+
 g = Github(api_key_github)
 repo = g.get_repo(config.git_repo)
-# get all version we have based on the smells with their date
-smell_pd = pd.read_csv(input_directory + "/smell-characteristics-consecOnly.csv")[['version', 'versionDate']]
-# convert to valid timestamp
-smell_pd['versionDatetime'] = list(
-    map(lambda x: datetime.timestamp(datetime.strptime(x, '%d-%m-%Y')), smell_pd['versionDate']))
-smells = dict(zip(smell_pd.version, smell_pd.versionDatetime))
+versiondates_df = None
+try:
+    versiondates_df = pd.read_csv(config.output_directory + '/changeDates.csv', header=0, names=['key', 'value'])
+except FileNotFoundError:
+    pass
+if versiondates_df is None:
+    # get all version we have based on the smells with their date
+    smell_pd = pd.read_csv(input_directory + "/smell-characteristics-consecOnly.csv")[['version', 'versionDate']]
+    # convert to valid timestamp
+    smell_pd['versionDatetime'] = list(
+        map(lambda x: datetime.timestamp(datetime.strptime(x, '%d-%m-%Y')), smell_pd['versionDate']))
+    smells = dict(zip(list(map(lambda x: x.split('-')[-1], smell_pd.version)), smell_pd.versionDatetime)) # remove split for component-characteristics
+else:
+    smells = dict(zip(versiondates_df['key'], versiondates_df['value'])) # remove split for component-characteristics
 filechanges = []
 
 
@@ -23,9 +33,11 @@ def get_commit_date(commit_hash):
         return u
     else:
         # get from github then add to dictionary
-        commit = repo.get_commit(sha=commit_hash.split('-')[-1])
+        commit = repo.get_commit(sha=commit_hash)
         date = datetime.timestamp(commit.commit.committer.date)
         smells[commit_hash] = date
+        pd_backup = pd.DataFrame.from_dict(smells, orient='index')
+        pd_backup.to_csv(config.output_directory + '/changeDates.csv', header=False)
         return date
 
 
