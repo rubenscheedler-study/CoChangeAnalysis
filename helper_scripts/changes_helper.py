@@ -9,10 +9,7 @@ def get_changes():
     component_chunks = pd.read_csv(input_directory + "/changes.csv", chunksize=5000)
     processed_chunks = []
     for component_chunk in component_chunks:
-        # ignore the first changes (=additions)
-        not_first_changes_chunk = component_chunk[component_chunk['first_change'] == False]
-
-        processed_chunks.append(not_first_changes_chunk)
+        processed_chunks.append(component_chunk)
 
     components = pd.concat(processed_chunks)
     store_dates_for_files(components[['version', 'name']])
