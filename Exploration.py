@@ -28,11 +28,11 @@ def calculate_smell_co_change_overlaps():
 
 def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, include_class_level=True, include_package_level=True, calculate_chi_square=True, calculate_precede_values=True):
     print("--- Overlap ", name, " co-changes and smells: ---")
-    all_pairs_unsorted.dropna(inplace=True)
-    co_changes_unsorted.dropna(inplace=True)
-    all_pairs_df = order_package1_and_package2(order_file1_and_file2(all_pairs_unsorted))
-    cc_pairs_df = order_package1_and_package2(order_file1_and_file2(co_changes_unsorted))
-    # parse start and enddate
+    # Class level data
+    all_pairs_no_package = all_pairs_unsorted.drop(['package1', 'package2'], axis=1)  # This drops rows without both packages. May only be done for class-level analysis
+    all_pairs_no_package = order_file1_and_file2(all_pairs_no_package)
+    cc_pairs_no_package = co_changes_unsorted.drop(['package1', 'package2'], axis=1)  # This drops rows without both packages. May only be done for class-level analysis
+    cc_pairs_no_package = order_file1_and_file2(cc_pairs_no_package)
 
     class_smell_pairs_with_date = pd.DataFrame(columns=['file1', 'file2'])
     if include_class_level:
@@ -40,9 +40,15 @@ def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, in
         if class_smell_pairs_with_date is None:
             class_smell_pairs_with_date = order_file1_and_file2(get_project_class_smells_in_range(calculate_precede_values))  # df: file1, file2
             # Find file pairs that are part of the same class-level smell:
-            class_smell_pairs_with_date = join_helper.perform_chunkified_pair_join(all_pairs_df, class_smell_pairs_with_date, level='file', compare_dates=False)
+            class_smell_pairs_with_date = join_helper.perform_chunkified_pair_join(all_pairs_no_package, class_smell_pairs_with_date, level='file', compare_dates=False)
             save_pickle(class_smell_pairs_with_date, "class_smell_pairs_with_date")
 
+
+    # Package level data
+    all_pairs_unsorted.dropna(inplace=True)
+    co_changes_unsorted.dropna(inplace=True)
+    all_pairs_with_package = order_package1_and_package2(order_file1_and_file2(all_pairs_unsorted))
+    cc_pairs_with_package = order_package1_and_package2(order_file1_and_file2(co_changes_unsorted))
 
     package_smell_pairs_with_date = pd.DataFrame(columns=['file1', 'file2'])
     if include_package_level:
@@ -50,7 +56,7 @@ def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, in
         if package_smell_pairs_with_date is None:
             package_smell_pairs_with_date = order_package1_and_package2(get_project_package_smells_in_range(calculate_precede_values))  # df: package1, package2
             # We want to find file pairs whose package are part of the same smell:
-            package_smell_pairs_with_date = join_helper.perform_chunkified_pair_join(all_pairs_df, package_smell_pairs_with_date, level='package', compare_dates=False)
+            package_smell_pairs_with_date = join_helper.perform_chunkified_pair_join(all_pairs_with_package, package_smell_pairs_with_date, level='package', compare_dates=False)
             # Note: we are interested in (file1, file2) in package_smell_pairs
 
             save_pickle(package_smell_pairs_with_date, "package_smell_pairs_with_date")
@@ -62,14 +68,23 @@ def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, in
 
     distinct_smelly_pairs = to_unique_file_tuples(smell_pairs_with_date)  # (file1, file2)
 
-    all_file_pair_tuples = set(all_pairs_df.apply(lambda row: (row.file1, row.file2), axis=1))
+    if include_class_level:
+        all_file_pair_tuples = set(all_pairs_no_package.apply(lambda row: (row.file1, row.file2), axis=1))  # Use _no_package since we need the extra rows it contains
+        cc_tuples = to_unique_file_tuples(cc_pairs_no_package)
+        # Overlapping pairs contains at least: file1, file2, parsedSmellFirstDate, parsedSmellLastDate, parsedStartDate, parsedEndDate
+        overlapping_cc_smells = join_helper.perform_chunkified_pair_join(cc_pairs_no_package, smell_pairs_with_date)
+    else:
+        all_file_pair_tuples = set(all_pairs_with_package.apply(lambda row: (row.file1, row.file2), axis=1))  # Only consider files we know the package of.
+        cc_tuples = to_unique_file_tuples(cc_pairs_with_package)
+        # Overlapping pairs contains at least: file1, file2, parsedSmellFirstDate, parsedSmellLastDate, parsedStartDate, parsedEndDate
+        overlapping_cc_smells = join_helper.perform_chunkified_pair_join(cc_pairs_with_package, smell_pairs_with_date)
 
     relevant_smelly_pairs = set(distinct_smelly_pairs).intersection(all_file_pair_tuples)
-    # Overlapping pairs contains at least: file1, file2, parsedSmellFirstDate, parsedSmellLastDate, parsedStartDate, parsedEndDate
-    overlapping_cc_smells = join_helper.perform_chunkified_pair_join(cc_pairs_df, smell_pairs_with_date)
 
-    # RQ3: What happens first: smell or co-change?
-    if calculate_precede_values:
+    x = package_smell_pairs_with_date.head(10)
+    y = package_smell_pairs_with_date.head(10)
+    # RQ4: Are smells introduced before or after files start co-changing?
+    if calculate_precede_values and len(overlapping_cc_smells) > 0:
         # Filter smells and co-changes which are already present at the start of the analysis. We are not sure what their real start date is.
         overlapping_cc_smells_2 = overlapping_cc_smells.copy()
         print("unfiltered:", len(overlapping_cc_smells_2))
@@ -92,15 +107,19 @@ def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, in
         add_result(project_name, name + "_earlier_smell_pairs", earlier_smell_pairs)
         add_result(project_name, name + "_earlier_ccs_pairs", earlier_ccs_pairs)
         add_result(project_name, name + "_tied_pairs", tied_pairs)
+    elif calculate_precede_values and len(overlapping_cc_smells) == 0:
+        add_result(project_name, name + "_earlier_smell_pairs", 0)
+        add_result(project_name, name + "_earlier_ccs_pairs", 0)
+        add_result(project_name, name + "_tied_pairs", 0)
 
     # Store the balance in results
-    add_result(project_name, name + "_all_pairs", len(all_pairs_df))
-    add_result(project_name, name + "_all_pairs", len(all_pairs_df))
+    add_result(project_name, name + "_all_pairs", len(all_pairs_with_package))
+    add_result(project_name, name + "_all_pairs", len(all_pairs_with_package))
 
     overlapping_pairs = to_unique_file_tuples(overlapping_cc_smells)
 
-    print(name, " all pairs:\t\t", len(all_pairs_df))
-    print(name, " co-change pairs:\t\t", len(cc_pairs_df))
+    print(name, " all pairs:\t\t", len(all_file_pair_tuples))
+    print(name, " co-change pairs:\t\t", len(cc_tuples))
     print("All smell pairs:\t\t", len(distinct_smelly_pairs))
     print("Relevant smell pairs:\t\t", len(relevant_smelly_pairs))
     print("Overlapping pairs:\t\t", len(overlapping_pairs))
@@ -109,14 +128,13 @@ def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, in
     #for pair in overlapping_pairs:
     #    print(pair[0], ", ", pair[1])
     # save results
-    add_result(project_name, name+"_all_pairs", len(all_pairs_df))
-    add_result(project_name, name + "_cc_pairs", len(cc_pairs_df))
+    add_result(project_name, name+"_all_pairs", len(all_pairs_with_package))
+    add_result(project_name, name + "_cc_pairs", len(cc_pairs_with_package))
     add_result(project_name, name + "_distinct_smelly_pairs", len(distinct_smelly_pairs))
     add_result(project_name, name + "_relevant_smelly_pairs", len(relevant_smelly_pairs))
     add_result(project_name, name + "_overlapping_pairs", len(overlapping_pairs))
 
     if calculate_chi_square:
-        cc_tuples = to_unique_file_tuples(cc_pairs_df)
         analyzer.analyze_results(name, overlapping_pairs, distinct_smelly_pairs, cc_tuples, all_file_pair_tuples)
 
     return overlapping_pairs
@@ -126,30 +144,30 @@ def overlap_dtw():
     return print_overlap_of_algorithm("DTW",
                                       pd.read_csv(input_directory + "/file_pairs.csv"),
                                       find_pairs_with_date_range(output_directory + "/dtw.csv", '%Y-%m-%d %H:%M:%S'),
+                                      False,
                                       True,
                                       True,
-                                      True,
-                                      True)
+                                      False)
 
 
 def overlap_mba():
     return print_overlap_of_algorithm("MBA",
                                       pd.read_csv(input_directory + "/file_pairs.csv"),
                                       find_pairs_with_date_range(output_directory + "/mba.csv", '%Y-%m-%d %H:%M:%S'),
-                                      True,
                                       False,
                                       True,
-                                      True)
+                                      True,
+                                      False)
 
 
 def overlap_fo():
     return print_overlap_of_algorithm("FO",
                                       pd.read_csv(input_directory + "/file_pairs.csv"),
                                       find_pairs_with_date_range(input_directory + "/cochanges.csv", '%d-%m-%Y'),
+                                      False,
                                       True,
                                       True,
-                                      True,
-                                      True)
+                                      False)
 
 #
 # Time of smell vs time of co-change

@@ -52,7 +52,7 @@ def get_project_class_smells_in_range(include_smell_dates_and_id=False):
     # Map package.class to class
     smell_rows['file1'] = smell_rows['file1'].apply(get_class_from_package)
     smell_rows['file2'] = smell_rows['file2'].apply(get_class_from_package)
-
+    x = smell_rows.head(10)
     # pickle for later reuse
     save_pickle(smell_rows, "class_smells")
 

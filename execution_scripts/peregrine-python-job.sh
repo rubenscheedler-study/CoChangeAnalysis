@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=python-explorations-rerun-cass
+#SBATCH --job-name=python-explorations-rerun-big-guys-class-only
 #SBATCH --mail-type=ALL
 #SBATCH --time=2-12:00
 #SBATCH --mail-user=r.j.scheedler@student.rug.nl
