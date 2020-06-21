@@ -29,14 +29,13 @@ def calculate_smell_co_change_overlaps():
 
 def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, include_class_level=True, include_package_level=True, calculate_chi_square=True, calculate_precede_values=True):
     print("--- Overlap ", name, " co-changes and smells: ---")
-
+    all_pairs_unsorted = all_pairs_unsorted.drop(['file1Size', 'file2Size'], axis=1)
+    co_changes_unsorted = co_changes_unsorted.drop(['startdate', 'enddate', 'Unnamed: 0'], axis=1)
     # Class level data
     all_pairs_no_package = all_pairs_unsorted.drop(['package1', 'package2'], axis=1)  # This drops rows without both packages. May only be done for class-level analysis
     all_pairs_no_package = order_file1_and_file2(all_pairs_no_package)
     cc_pairs_no_package = co_changes_unsorted.drop(['package1', 'package2'], axis=1)  # This drops rows without both packages. May only be done for class-level analysis
     cc_pairs_no_package = order_file1_and_file2(cc_pairs_no_package)
-
-
 
     class_smell_pairs_with_date = pd.DataFrame(columns=['file1', 'file2'])
     if include_class_level:
@@ -49,6 +48,7 @@ def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, in
 
     del all_pairs_no_package
     gc.collect()
+    class_smell_pairs_with_date.info(verbose=False, memory_usage="deep")
 
     # Package level data
     all_pairs_unsorted.dropna(inplace=True)
@@ -71,19 +71,18 @@ def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, in
 
             save_pickle(package_smell_pairs_with_date, "package_smell_pairs_with_date")
 
+    package_smell_pairs_with_date.info(verbose=False, memory_usage="deep")
     del all_pairs_with_package
     gc.collect()
     # Combine the pairs
-    smell_pairs_with_date = pd.DataFrame()
-    smell_pairs_with_date = smell_pairs_with_date.append(class_smell_pairs_with_date, sort=False)
+    df_list = [class_smell_pairs_with_date, package_smell_pairs_with_date]
+    smell_pairs_with_date = pd.concat(df_list)
 
     del class_smell_pairs_with_date
-    gc.collect()
-
-    smell_pairs_with_date = smell_pairs_with_date.append(package_smell_pairs_with_date, sort=False)
-
     del package_smell_pairs_with_date
     gc.collect()
+
+    smell_pairs_with_date.info(verbose=False, memory_usage="deep")
 
     if include_class_level:
         # Overlapping pairs contains at least: file1, file2, parsedSmellFirstDate, parsedSmellLastDate, parsedStartDate, parsedEndDate
@@ -92,13 +91,16 @@ def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, in
         # Overlapping pairs contains at least: file1, file2, parsedSmellFirstDate, parsedSmellLastDate, parsedStartDate, parsedEndDate
         overlapping_cc_smells = join_helper.perform_chunkified_pair_join(cc_pairs_with_package, smell_pairs_with_date)
 
+    overlapping_cc_smells.info(verbose=False, memory_usage="deep")
     del smell_pairs_with_date
     gc.collect()
 
     # RQ4: Are smells introduced before or after files start co-changing?
     if calculate_precede_values and len(overlapping_cc_smells) > 0:
         # Filter smells and co-changes which are already present at the start of the analysis. We are not sure what their real start date is.
-
+        overlapping_cc_smells.drop(['parsedVersionDate', 'package1', 'package2'], axis=1, inplace=True)
+        overlapping_cc_smells.info(verbose=False, memory_usage="deep")
+        gc.collect()
         print("unfiltered:", len(overlapping_cc_smells))
         overlapping_cc_smells = overlapping_cc_smells[overlapping_cc_smells['parsedSmellFirstDate'].dt.floor('d') != analysis_start_date.date()]
         gc.collect()

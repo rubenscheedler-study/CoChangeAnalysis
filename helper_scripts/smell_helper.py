@@ -47,12 +47,12 @@ def get_project_class_smells_in_range(include_smell_dates_and_id=False):
     smells = smells.explode('affectedElementCombinations')
     # split the combination tuples into two columns
     smells[['file1', 'file2']] = pd.DataFrame(smells['affectedElementCombinations'].tolist(), index=smells.index)
+    smells = smells.drop('affectedElementCombinations', axis=1)
     # The file can contain smells affecting just one file, which ends up resolving to nan. Luckily, they are not relevant so we filter them.
     smell_rows = smells.dropna()
     # Map package.class to class
     smell_rows['file1'] = smell_rows['file1'].apply(get_class_from_package)
     smell_rows['file2'] = smell_rows['file2'].apply(get_class_from_package)
-    x = smell_rows.head(10)
     # pickle for later reuse
     save_pickle(smell_rows, "class_smells")
 
@@ -101,6 +101,7 @@ def get_project_package_smells_in_range(include_smell_dates_and_id=False):
     # split the combination tuples into two columns
     smells[['package1', 'package2']] = pd.DataFrame(smells['affectedPackageCombinations'].tolist(), index=smells.index)
     # The file can contain smells affecting just one file, which ends up resolving to nan. Luckily, they are not relevant so we filter them.
+    smells = smells.drop('affectedPackageCombinations', axis=1)
     smell_rows = smells.dropna()
     smell_rows = smell_rows.drop_duplicates()
     # pickle for later reuse

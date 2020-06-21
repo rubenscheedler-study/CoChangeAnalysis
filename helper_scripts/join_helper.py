@@ -12,9 +12,7 @@ class JoinHelper:
             for smell_chunk in chunks2:
                 match_chunk = cc_chunk.merge(smell_chunk, how='inner', left_on=[level + '1', level + '2'],
                                              right_on=[level + '1', level + '2'])
-                test_frame = match_chunk.head(5)
-                test_smells = smell_chunk.head(5)
-                test_cc = cc_chunk.head(5)
+
                 # Check we at least have a match
                 if len(match_chunk.index) == 0:
                     continue

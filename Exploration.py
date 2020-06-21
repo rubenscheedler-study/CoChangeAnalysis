@@ -1,4 +1,5 @@
 import datetime
+import gc
 
 import pandas as pd
 from matplotlib_venn import venn3, venn2
@@ -28,6 +29,9 @@ def calculate_smell_co_change_overlaps():
 
 def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, include_class_level=True, include_package_level=True, calculate_chi_square=True, calculate_precede_values=True):
     print("--- Overlap ", name, " co-changes and smells: ---")
+    all_pairs_unsorted = all_pairs_unsorted.drop(['file1Size', 'file2Size'], axis=1, errors='ignore')
+    co_changes_unsorted = co_changes_unsorted.drop(['startdate', 'enddate', 'Unnamed: 0'], axis=1, errors='ignore')
+
     # Class level data
     all_pairs_no_package = all_pairs_unsorted.drop(['package1', 'package2'], axis=1)  # This drops rows without both packages. May only be done for class-level analysis
     all_pairs_no_package = order_file1_and_file2(all_pairs_no_package)
@@ -62,9 +66,12 @@ def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, in
             save_pickle(package_smell_pairs_with_date, "package_smell_pairs_with_date")
 
     # Combine the pairs
-    smell_pairs_with_date = pd.DataFrame()
-    smell_pairs_with_date = smell_pairs_with_date.append(class_smell_pairs_with_date, sort=False)
-    smell_pairs_with_date = smell_pairs_with_date.append(package_smell_pairs_with_date, sort=False)
+    df_list = [class_smell_pairs_with_date, package_smell_pairs_with_date]
+    smell_pairs_with_date = pd.concat(df_list)
+
+    del class_smell_pairs_with_date
+    del package_smell_pairs_with_date
+    gc.collect()
 
     distinct_smelly_pairs = to_unique_file_tuples(smell_pairs_with_date)  # (file1, file2)
 
@@ -81,25 +88,23 @@ def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, in
 
     relevant_smelly_pairs = set(distinct_smelly_pairs).intersection(all_file_pair_tuples)
 
-    x = package_smell_pairs_with_date.head(10)
-    y = package_smell_pairs_with_date.head(10)
+    overlapping_pairs = to_unique_file_tuples(overlapping_cc_smells)
+
     # RQ4: Are smells introduced before or after files start co-changing?
     if calculate_precede_values and len(overlapping_cc_smells) > 0:
         # Filter smells and co-changes which are already present at the start of the analysis. We are not sure what their real start date is.
-        overlapping_cc_smells_2 = overlapping_cc_smells.copy()
-        print("unfiltered:", len(overlapping_cc_smells_2))
-        x = overlapping_cc_smells_2['parsedSmellFirstDate'].dt.floor('d')
-        overlapping_cc_smells_2 = overlapping_cc_smells_2[overlapping_cc_smells_2['parsedSmellFirstDate'].dt.floor('d') != analysis_start_date.date()]
-        print("after filtering smells: ", len(overlapping_cc_smells_2))  # Note: this counts joined rows
-        overlapping_cc_smells_2 = overlapping_cc_smells_2[overlapping_cc_smells_2['parsedStartDate'].dt.floor('d') != analysis_start_date.date()]
-        print("filtered ccs: ", len(overlapping_cc_smells_2))
+        print("unfiltered:", len(overlapping_cc_smells))
+        overlapping_cc_smells = overlapping_cc_smells[overlapping_cc_smells['parsedSmellFirstDate'].dt.floor('d') != analysis_start_date.date()]
+        print("after filtering smells: ", len(overlapping_cc_smells))  # Note: this counts joined rows
+        overlapping_cc_smells = overlapping_cc_smells[overlapping_cc_smells['parsedStartDate'].dt.floor('d') != analysis_start_date.date()]
+        print("filtered ccs: ", len(overlapping_cc_smells))
 
         # Compare the two start dates and count which is earlier how often. Also count ties!
-        earlier_smell_rows = overlapping_cc_smells_2[overlapping_cc_smells_2['parsedSmellFirstDate'].dt.floor('d') < overlapping_cc_smells_2['parsedStartDate'].dt.floor('d')]
-        earlier_ccs_rows = overlapping_cc_smells_2[overlapping_cc_smells_2['parsedStartDate'].dt.floor('d') < overlapping_cc_smells_2['parsedSmellFirstDate'].dt.floor('d')]
-        tied_rows = overlapping_cc_smells_2[overlapping_cc_smells_2['parsedStartDate'].dt.floor('d') == overlapping_cc_smells_2['parsedSmellFirstDate'].dt.floor('d')]
+        earlier_smell_rows = overlapping_cc_smells[overlapping_cc_smells['parsedSmellFirstDate'].dt.floor('d') < overlapping_cc_smells['parsedStartDate'].dt.floor('d')]
+        earlier_ccs_rows = overlapping_cc_smells[overlapping_cc_smells['parsedStartDate'].dt.floor('d') < overlapping_cc_smells['parsedSmellFirstDate'].dt.floor('d')]
+        tied_rows = overlapping_cc_smells[overlapping_cc_smells['parsedStartDate'].dt.floor('d') == overlapping_cc_smells['parsedSmellFirstDate'].dt.floor('d')]
+
         # group by: file1, file2, smellId
-        #earlier_smell_pairs = earlier_smell_rows.groupby(['file1', 'file2', 'uniqueSmellID']).ngroups
         earlier_smell_pairs = len(pd.unique(earlier_smell_rows[['file1', 'file2', 'uniqueSmellID']].values.ravel('K')))
         earlier_ccs_pairs = len(pd.unique(earlier_ccs_rows[['file1', 'file2', 'uniqueSmellID']].values.ravel('K')))
         tied_pairs = len(pd.unique(tied_rows[['file1', 'file2', 'uniqueSmellID']].values.ravel('K')))
@@ -116,7 +121,6 @@ def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, in
     add_result(project_name, name + "_all_pairs", len(all_pairs_with_package))
     add_result(project_name, name + "_all_pairs", len(all_pairs_with_package))
 
-    overlapping_pairs = to_unique_file_tuples(overlapping_cc_smells)
 
     print(name, " all pairs:\t\t", len(all_file_pair_tuples))
     print(name, " co-change pairs:\t\t", len(cc_tuples))
@@ -125,9 +129,6 @@ def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, in
     print("Overlapping pairs:\t\t", len(overlapping_pairs))
     print("Overlap ratio:\t\t", 0 if len(relevant_smelly_pairs) == 0 else 100 * (len(overlapping_pairs) / len(relevant_smelly_pairs)))
     print("overlapping pairs:")
-    #for pair in overlapping_pairs:
-    #    print(pair[0], ", ", pair[1])
-    # save results
     add_result(project_name, name+"_all_pairs", len(all_pairs_with_package))
     add_result(project_name, name + "_cc_pairs", len(cc_pairs_with_package))
     add_result(project_name, name + "_distinct_smelly_pairs", len(distinct_smelly_pairs))
