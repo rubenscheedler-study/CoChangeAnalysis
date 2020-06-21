@@ -4,10 +4,7 @@ from config import initialize_config
 # Reads settings from command line
 
 initialize_config()
-
-from dynamic_Warp import generate_dtw_analysis_files
-from MBA import generate_mba_analysis_files
-from Exploration import run_exploration
+from Exploration_RQ4 import run_exploration
 
 # generate_dtw_analysis_files()
 
@@ -15,3 +12,4 @@ from Exploration import run_exploration
 
 # Start the exploration
 run_exploration()
+
