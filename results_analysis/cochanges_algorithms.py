@@ -53,8 +53,8 @@ def cochanges_over_time():
         plt.plot(x, mba, label='mba')
         plt.legend(loc="upper left")
         plt.title(proj)
+        plt.savefig('Images/cc_over_time_'+proj+'.png', bbox_inches='tight')
         plt.show()
-        plt.savefig('Images/cc_over_time_'+proj+'.png')
 
 
 def algorithms_venn():
@@ -71,8 +71,13 @@ def algorithms_venn():
         else:
             venn3([cochanges_dtw, cochanges_mba, cochanges_fo], ('dtw', 'mba', 'fo'))
         plt.title(proj)
+        plt.savefig('Images/venn_'+proj+'.png', bbox_inches='tight')
         plt.show()
-        plt.savefig('Images/venn_'+proj+'.png')
+        print(proj)
+        print('overlap wrt fo: ', len(cochanges_fo.intersection(cochanges_dtw)) / len(cochanges_fo) * 100)
+        print('overlap wrt dtw: ', len(cochanges_fo.intersection(cochanges_dtw)) / len(cochanges_dtw) * 100)
+        print('overlap wrt union: ', len(cochanges_fo.intersection(cochanges_dtw)) / len(cochanges_dtw.union(cochanges_fo)) * 100)
+
 
 def cochange_percentages():
     analysed_projects = [f.name for f in os.scandir('output') if f.is_dir()]

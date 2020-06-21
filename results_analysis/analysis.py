@@ -11,6 +11,6 @@ def result_analysis():
     # phi_vs_commits_analyzed()
     # phi_vs_threshold()
     # phi_vs_cc_ratio()
-    cochanges_over_time()
+    # cochanges_over_time()
     algorithms_venn()
     #cochange_percentages()
