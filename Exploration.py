@@ -93,6 +93,7 @@ def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, in
     # RQ4: Are smells introduced before or after files start co-changing?
     if calculate_precede_values and len(overlapping_cc_smells) > 0:
         # Filter smells and co-changes which are already present at the start of the analysis. We are not sure what their real start date is.
+        overlapping_cc_smells.drop(['parsedVersionDate', 'package1', 'package2'], axis=1, inplace=True)
         print("unfiltered:", len(overlapping_cc_smells))
         overlapping_cc_smells = overlapping_cc_smells[overlapping_cc_smells['parsedSmellFirstDate'].dt.floor('d') != analysis_start_date.date()]
         print("after filtering smells: ", len(overlapping_cc_smells))  # Note: this counts joined rows
