@@ -118,10 +118,6 @@ def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, in
         add_result(project_name, name + "_tied_pairs", 0)
 
     # Store the balance in results
-    add_result(project_name, name + "_all_pairs", len(all_pairs_with_package))
-    add_result(project_name, name + "_all_pairs", len(all_pairs_with_package))
-
-
     print(name, " all pairs:\t\t", len(all_file_pair_tuples))
     print(name, " co-change pairs:\t\t", len(cc_tuples))
     print("All smell pairs:\t\t", len(distinct_smelly_pairs))
@@ -129,8 +125,8 @@ def print_overlap_of_algorithm(name, all_pairs_unsorted, co_changes_unsorted, in
     print("Overlapping pairs:\t\t", len(overlapping_pairs))
     print("Overlap ratio:\t\t", 0 if len(relevant_smelly_pairs) == 0 else 100 * (len(overlapping_pairs) / len(relevant_smelly_pairs)))
     print("overlapping pairs:")
-    add_result(project_name, name+"_all_pairs", len(all_pairs_with_package))
-    add_result(project_name, name + "_cc_pairs", len(cc_pairs_with_package))
+    add_result(project_name, name+"_all_pairs", len(all_file_pair_tuples))
+    add_result(project_name, name + "_cc_pairs", len(cc_tuples))
     add_result(project_name, name + "_distinct_smelly_pairs", len(distinct_smelly_pairs))
     add_result(project_name, name + "_relevant_smelly_pairs", len(relevant_smelly_pairs))
     add_result(project_name, name + "_overlapping_pairs", len(overlapping_pairs))
@@ -145,30 +141,30 @@ def overlap_dtw():
     return print_overlap_of_algorithm("DTW",
                                       pd.read_csv(input_directory + "/file_pairs.csv"),
                                       find_pairs_with_date_range(output_directory + "/dtw.csv", '%Y-%m-%d %H:%M:%S'),
-                                      False,
                                       True,
                                       True,
-                                      False)
+                                      True,
+                                      True)
 
 
 def overlap_mba():
     return print_overlap_of_algorithm("MBA",
                                       pd.read_csv(input_directory + "/file_pairs.csv"),
                                       find_pairs_with_date_range(output_directory + "/mba.csv", '%Y-%m-%d %H:%M:%S'),
-                                      False,
                                       True,
                                       True,
-                                      False)
+                                      True,
+                                      True)
 
 
 def overlap_fo():
     return print_overlap_of_algorithm("FO",
                                       pd.read_csv(input_directory + "/file_pairs.csv"),
                                       find_pairs_with_date_range(input_directory + "/cochanges.csv", '%d-%m-%Y'),
-                                      False,
                                       True,
                                       True,
-                                      False)
+                                      True,
+                                      True)
 
 #
 # Time of smell vs time of co-change
